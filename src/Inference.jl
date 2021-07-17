@@ -6,7 +6,7 @@ Draw a plot with a point estimate measure of centrality and quantiled credible i
 
 Usage:
 ```julia-repl
-plot_posterior_intervals(model, "mean", 0.025, 0.975)
+plot_posterior_intervals(model, "median", 0.025, 0.975)
 ```
 
 Arguments:
@@ -17,7 +17,7 @@ Arguments:
 - `upperprob` : The upper bound of the credible interval to extract. 0.975 is recommended.
 """
 
-function plot_posterior_intervals(model, point_est, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
+function plot_posterior_intervals(model::Chains, point_est::String, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
 
     #------------ Argument checks ---------------
 
@@ -121,9 +121,47 @@ Arguments:
 """
 
 
-function plot_posterior_hist(model)
+function plot_posterior_hist(model::Chains)
     
-    x
+    #------------ Argument checks ---------------
+
+    # Model
+
+    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
+
+    #------------ Reshaping ---------------------
+
+    posteriorDF = DataFrame(model)
+
+    # Remove sampler-specific columns as only model parameters are of interest here
+
+    posteriorDF = DataFrames.select(posteriorDF, Not([:iteration, :chain, :lp, :n_steps, :is_accept, :acceptance_rate, :log_density, :hamiltonian_energy, :hamiltonian_energy_error,  :max_hamiltonian_energy_error,  :tree_depth, :numerical_error, :step_size, :nom_step_size]))
+
+    #------------ Draw the plots ----------------
+
+    gr() # gr backend for graphics
+
+    # Iterate through each parameter and draw histograms
+
+    plot_array = Any[]
+
+    for i in 1:n
+        push!(plot_array, plot(...))
+    end
+
+    # Final matrix arrangement
+
+    myPlot = plot(plot_array..., layout = length(plot_array))
+
+    myPlot = @df finalPost plot(
+        :value,
+        legend = false
+        seriestype = :histogram,
+        xlabel = "Posterior Value",
+        ylabel = "Parameter",
+    )
+
+    return myPlot
 
 end
 
@@ -147,7 +185,7 @@ Arguments:
 - `prob` : The probability for the shaded portion of the density curve.
 """
 
-function plot_posterior_area(model, parameter, prob args...; kwargs...)
+function plot_posterior_area(model::Chains, parameter::String, prob::Float64, args...; kwargs...)
     
     x
     
