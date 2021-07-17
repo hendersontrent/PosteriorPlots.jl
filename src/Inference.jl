@@ -21,6 +21,10 @@ function plot_posterior_intervals(model, point_est, lowerprob::Float64, upperpro
 
     #------------ Argument checks ---------------
 
+    # Model
+
+    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
+
     # Point estimate method
 
     (point_est != "mean" || point_est != "median") || error("`point_est` should be a string specification of either 'mean' or 'median'.")
@@ -50,7 +54,7 @@ function plot_posterior_intervals(model, point_est, lowerprob::Float64, upperpro
 
     posteriorDF = DataFrames.stack(posteriorDF, 1:ncols)
 
-    # Extract mean and lower and upper quantiles for each parameter
+    # Extract mean/media and lower and upper quantiles for each parameter
 
     if point_est == "mean"
         posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => mean)
