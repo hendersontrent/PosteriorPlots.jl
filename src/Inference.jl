@@ -17,9 +17,13 @@ Arguments:
 - `upperprob` : The upper bound of the credible interval to extract. 0.975 is recommended.
 """
 
-function plot_posterior_intervals(model, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
+function plot_posterior_intervals(model, point_est, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
 
     #------------ Argument checks ---------------
+
+    # Point estimate method
+
+    (point_est != "mean" || point_est != "median") || error("`point_est` should be a string specification of either 'mean' or 'median'.")
 
     # Numerical probabilities
 
@@ -60,7 +64,7 @@ function plot_posterior_intervals(model, lowerprob::Float64, upperprob::Float64,
     # Rename columns for appropriate usage and interpretability
 
     if point_est == "mean"
-        posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
+        posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_mean => :centre)
     else
         posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
     end
@@ -70,7 +74,7 @@ function plot_posterior_intervals(model, lowerprob::Float64, upperprob::Float64,
 
     # Merge all back together
 
-    tmpPost = leftjoin(posteriorDFMean, posteriorDFLower, on = :variable)
+    tmpPost = leftjoin(posteriorDFPoint, posteriorDFLower, on = :variable)
     finalPost = leftjoin(tmpPost, posteriorDFUpper, on = :variable)
 
     #------------ Draw the plot -----------------
@@ -111,3 +115,36 @@ Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
 """
+
+
+function plot_posterior_hist(model)
+    
+    x
+
+end
+
+
+
+"""
+
+    plot_posterior_area(model, parameter, prob, args...; kwargs...)
+
+Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in Turing.jl.
+
+Usage:
+```julia-repl
+plot_posterior_area(model, parameter, prob, prob_outer)
+```
+
+Arguments:
+
+- `model` : The Turing.jl model to draw inferences from.
+- `parameter` : The parameter of interest to plot.
+- `prob` : The probability for the shaded portion of the density curve.
+"""
+
+function plot_posterior_area(model, parameter, prob args...; kwargs...)
+    
+    x
+    
+end
