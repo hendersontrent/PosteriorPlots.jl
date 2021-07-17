@@ -36,9 +36,11 @@ function plot_posterior_intervals(model, lowerprob::Float64, upperprob::Float64,
 
     posteriorDF = DataFrame(model)
 
-    # Reshape into long form DataFrame
+    # Remove sampler-specific columns as only model parameters are of interest here
 
     posteriorDF = DataFrames.select(posteriorDF, Not([:iteration, :chain, :lp, :n_steps, :is_accept, :acceptance_rate, :log_density, :hamiltonian_energy, :hamiltonian_energy_error,  :max_hamiltonian_energy_error,  :tree_depth, :numerical_error, :step_size, :nom_step_size]))
+
+    # Reshape into long form DataFrame for summarisation
 
     nrows, ncols = size(posteriorDF)
 
@@ -46,13 +48,23 @@ function plot_posterior_intervals(model, lowerprob::Float64, upperprob::Float64,
 
     # Extract mean and lower and upper quantiles for each parameter
 
-    posteriorDFMean = combine(groupby(posteriorDF, :variable), :value => mean)
+    if point_est == "mean"
+        posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => mean)
+    else
+        posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => median)
+    end
+
     posteriorDFLower = combine(groupby(posteriorDF, :variable), :value => lower -> quantile(lower, lowerprob))
     posteriorDFUpper = combine(groupby(posteriorDF, :variable), :value => upper -> quantile(upper, upperprob))
 
     # Rename columns for appropriate usage and interpretability
+
+    if point_est == "mean"
+        posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
+    else
+        posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
+    end
     
-    posteriorDFMean = DataFrames.rename(posteriorDFMean, :value_mean => :mean)
     posteriorDFLower = DataFrames.rename(posteriorDFLower, :value_function => :lower)
     posteriorDFUpper = DataFrames.rename(posteriorDFUpper, :value_function => :upper)
 
@@ -68,16 +80,34 @@ function plot_posterior_intervals(model, lowerprob::Float64, upperprob::Float64,
     gr() # gr backend for graphics
 
     myPlot = @df finalPost plot(
-        :mean,
+        :centre,
         :variable,
         xerror = (:lower, :upper),
         legend = false,
         seriestype = :scatter,
         marker = stroke(RGB(24/255,137/255,230/255), RGB(92/255,172/255,238/255)),
-        title = string("Posterior ", "mean", "s w/ ", round(credibleinterval, digits = 0), "% credible intervals"),
+        title = string("Posterior ", point_est, "s w/ ", round(credibleinterval, digits = 0), "% intervals"),
         xlabel = "Posterior Value",
         ylabel = "Parameter",
     )
 
     return myPlot
 end
+
+
+
+"""
+
+    plot_posterior_hist(model, args...; kwargs...)
+
+Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in Turing.jl.
+
+Usage:
+```julia-repl
+plot_posterior_hist(model)
+```
+
+Arguments:
+
+- `model` : The Turing.jl model to draw inferences from.
+"""

@@ -7,4 +7,15 @@ R has excellent packages for the plotting and analysis of Bayesian models fit in
 
 ## Functionality
 
-`PosteriorPlots.jl` seeks to provide intuitive and simple functionality for both statistical inference of model parameters as well as visualisation and interpretation of model fits and diagnostics.
+`PosteriorPlots.jl` seeks to provide intuitive and simple functionality for both statistical inference of model parameters as well as visualisation and interpretation of model fits and diagnostics. Prospective functionality can be summarised across these two domains:
+
+### Statistical inference
+
+* Point and credible interval estimates
+* Parameter distributions
+* Predictions
+
+### Model diagnostics
+
+* Posterior predictive checks of distribution
+* Posterior predictive checks of probability mass and probability density
