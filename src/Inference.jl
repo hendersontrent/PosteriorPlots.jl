@@ -106,22 +106,23 @@ end
 
 """
 
-    plot_posterior_hist(model, args...; kwargs...)
+    plot_posterior_hist(model, parameter, args...; kwargs...)
 
 Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in Turing.jl.
 
 Usage:
 ```julia-repl
-plot_posterior_hist(model)
+plot_posterior_hist(model, parameter)
 ```
 
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
+- `parameter` : The parameter of interest to plot.
 """
 
 
-function plot_posterior_hist(model::Chains)
+function plot_posterior_hist(model::Chains, parameter::Symbol)
     
     #------------ Argument checks ---------------
 
@@ -129,49 +130,32 @@ function plot_posterior_hist(model::Chains)
 
     isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
 
+    isa(parameter, Symbol) || error("`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument.")
+
     #------------ Reshaping ---------------------
 
     posteriorDF = DataFrame(model)
-
-    # Remove sampler-specific columns as only model parameters are of interest here
-
-    posteriorDF = DataFrames.select(posteriorDF, Not([:iteration, :chain, :lp, :n_steps, :is_accept, :acceptance_rate, :log_density, :hamiltonian_energy, :hamiltonian_energy_error,  :max_hamiltonian_energy_error,  :tree_depth, :numerical_error, :step_size, :nom_step_size]))
+    thevec = convert(Vector, posteriorDF[!,parameter])
 
     #------------ Draw the plots ----------------
 
     gr() # gr backend for graphics
 
-    # Iterate through each parameter and draw histograms
+    # Draw plot
 
-    plot_array = Any[]
-
-    for i in 1:n
-        push!(plot_array, plot(...))
-    end
-
-    # Final matrix arrangement
-
-    myPlot = plot(plot_array..., layout = length(plot_array))
-
-    myPlot = @df finalPost plot(
-        :value,
-        legend = false
-        seriestype = :histogram,
-        xlabel = "Posterior Value",
-        ylabel = "Parameter",
-    )
+    myPlot = Plots.histogram(thevec, title = parameter, 
+    fillalpha = 0.8, xlabel = "Posterior Value", ylabel = "", legend = false)
 
     return myPlot
-
 end
 
 
 
 """
 
-    plot_posterior_area(model, parameter, prob, args...; kwargs...)
+    plot_posterior_density(model, parameter, args...; kwargs...)
 
-Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in Turing.jl.
+Draw a density plot of sampled parameters for easy interpretation of regression models fit in Turing.jl.
 
 Usage:
 ```julia-repl
@@ -182,11 +166,29 @@ Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
 - `parameter` : The parameter of interest to plot.
-- `prob` : The probability for the shaded portion of the density curve.
 """
 
-function plot_posterior_area(model::Chains, parameter::String, prob::Float64, args...; kwargs...)
-    
-    x
-    
+function plot_posterior_density(model::Chains, parameter::Symbol, args...; kwargs...)
+        
+    #------------ Argument checks ---------------
+
+    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
+
+    isa(parameter, Symbol) || error("`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument.")
+
+    #------------ Reshaping ---------------------
+
+    posteriorDF = DataFrame(model)
+    thevec = convert(Vector, posteriorDF[!,parameter])
+
+    #------------ Draw the plots ----------------
+
+    gr() # gr backend for graphics
+
+    # Draw plot
+
+    myPlot = Plots.density(thevec, title = parameter, 
+    fillalpha = 0.8, xlabel = "Posterior Value", ylabel = "Density", legend = false)
+
+    return myPlot
 end
