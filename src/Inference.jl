@@ -1,3 +1,4 @@
+using Base: lowerbound
 """
 
     plot_posterior_intervals(model, point_est, prob, args...; kwargs...)
@@ -180,15 +181,27 @@ function plot_posterior_density(model::Chains, parameter::Symbol, args...; kwarg
 
     posteriorDF = DataFrame(model)
     thevec = convert(Vector, posteriorDF[!,parameter])
+    m = median(thevec)
+    y = kde(thevec)
+    lowerquantile = quantile(thevec, 0.025)
+    upperquantile = quantile(thevec, 0.975)
 
     #------------ Draw the plots ----------------
 
     gr() # gr backend for graphics
+    mycolor = theme_palette(:auto).colors.colors[1]
 
     # Draw plot
 
-    myPlot = Plots.density(thevec, title = parameter, 
-    fillalpha = 0.8, xlabel = "Posterior Value", ylabel = "Density", legend = false)
+    plot(thevec, title = parameter, fillalpha = 0.8, 
+         xlabel = "Posterior Value", ylabel = "Density", label = "",
+         seriestype = :density, color = mycolor)
+
+    plot!(range(lowerquantile, stop = upperquantile, length = 100), thevec -> pdf(y,thevec), color = mycolor, 
+          fill = (0, 0.4, mycolor),
+          label = "95% credible interval", legend = true)
+
+    myPlot = plot!([m], seriestype = "vline", color = mycolor, label = "Median")
 
     return myPlot
 end
