@@ -159,7 +159,7 @@ Draw a density plot of sampled parameters for easy interpretation of regression 
 
 Usage:
 ```julia-repl
-plot_posterior_area(model, parameter, prob, prob_outer)
+plot_posterior_area(model, parameter)
 ```
 
 Arguments:
