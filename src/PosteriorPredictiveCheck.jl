@@ -1,47 +1,81 @@
 """
 
-    plot_posterior_density_check(model, y, args...; kwargs...)
+    plot_posterior_density_check(x, y, args...; kwargs...)
 
-Draw a density plot of a random sample of response variable posterior distributions against the density estimation of the actual data to visualise model fit.
+Draw a density plot of response variable posterior distributions against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_posterior_density_check(model, y)
+plot_posterior_density_check(x, y)
 ```
 Arguments:
 
-- `model` : The Turing.jl model to draw inferences from.
-- `y` : The y variable of the actual data to plot posterior draws against.
+- `x` : The vector of the actual data values to plot.
+- `y` : The vector of model response variable predictions to plot.
 """
 
-function plot_posterior_density_check(model::Chains, y, args...; kwargs...)
+function plot_density_check(x::Vector, y::Symbol, args...; kwargs...)
 
-    x
+        #------------ Argument checks ---------------
 
+        isa(x, Vector) || error("`x` must be an object of class Vector specifying the name of a created vector of values for the parameter of interest that were entered into the Turing model.")
+
+        isa(y, Vector) || error("`parameter` must be an object of class Vector specifying the name of a created vector of predicted response variable values for the Turing model.")
+
+        #------------ Draw the plot -----------------
+
+        gr() # gr backend for graphics
+        mycolor = theme_palette(:auto).colors.colors[1]
+        mycolor2 = theme_palette(:auto).colors.colors[2]
+
+        plot(x, label = "Real Data", seriestype = :density, color = mycolor)
+        plot!(y, label = "Posterior Predictions", seriestype = :density, color = mycolor2)
+        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Posterior Value", ylabel = "Density")
+
+        return myPlot
 end
 
 
 
 """
 
-    plot_posterior_hist_check(model, y, point_est, args...; kwargs...)
+    plot_posterior_hist_check(x, y, args...; kwargs...)
 
 Draw a plot with a binned histogram of sampled parameters against a measure of centrality of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_posterior_hist(model)
+plot_posterior_hist(x, y)
 ```
 
 Arguments:
 
-- `model` : The Turing.jl model to draw inferences from.
-- `y` : The y variable of the actual data to plot posterior draws against.
-- `point_est` : The measure of point estimate centrality. Options are "mean" or "median".
+- `x` : The vector of the actual data values to plot.
+- `y` : The vector of model response variable predictions to plot.
 """
 
-function plot_posterior_hist(model::Chains, y, args...; kwargs...)
+function plot_posterior_hist(x::Vector, y::Vector, args...; kwargs...)
 
-    x
+        #------------ Argument checks ---------------
+
+        isa(x, Vector) || error("`x` must be an object of class Vector specifying the name of a created vector of values for the parameter of interest that were entered into the Turing model.")
+
+        isa(y, Vector) || error("`parameter` must be an object of class Vector specifying the name of a created vector of predicted response variable values for the Turing model.")
+
+        #------------ Computations ------------------
+
+        m = median(x)
+
+        #------------ Draw the plot -----------------
+
+        gr() # gr backend for graphics
+        mycolor = theme_palette(:auto).colors.colors[1]
+        mycolor2 = theme_palette(:auto).colors.colors[2]
+
+        plot(x, label = "Real Data", seriestype = :histogram, color = mycolor)
+        plot!([m], seriestype = "vline", color = mycolor, label = "Real Data Median")
+        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Posterior Value", ylabel = "")
+
+        return myPlot
 
 end

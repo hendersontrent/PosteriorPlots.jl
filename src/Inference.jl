@@ -1,7 +1,6 @@
-using Base: lowerbound
 """
 
-    plot_posterior_intervals(model, prob, args...; kwargs...)
+    plot_posterior_intervals(model, lowerprob, upperprob, args...; kwargs...)
 
 Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of regression models fit in Turing.jl.
 
