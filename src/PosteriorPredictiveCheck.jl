@@ -6,13 +6,19 @@ Draw a density plot of a random sample of response variable posterior distributi
 
 Usage:
 ```julia-repl
-plot_posterior_density_check(model, data)
+plot_posterior_density_check(model, y)
 ```
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
 - `y` : The y variable of the actual data to plot posterior draws against.
 """
+
+function plot_posterior_density_check(model::Chains, y, args...; kwargs...)
+
+    x
+
+end
 
 
 
@@ -34,3 +40,8 @@ Arguments:
 - `point_est` : The measure of point estimate centrality. Options are "mean" or "median".
 """
 
+function plot_posterior_hist(model::Chains, y, args...; kwargs...)
+
+    x
+
+end
