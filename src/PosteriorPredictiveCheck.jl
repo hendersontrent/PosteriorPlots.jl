@@ -14,7 +14,7 @@ Arguments:
 - `y` : The vector of model response variable predictions to plot.
 """
 
-function plot_density_check(x::Vector, y::Symbol, args...; kwargs...)
+function plot_density_check(x::Vector, y::Vector, args...; kwargs...)
 
         #------------ Argument checks ---------------
 
