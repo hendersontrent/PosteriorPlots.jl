@@ -1,34 +1,29 @@
 using Base: lowerbound
 """
 
-    plot_posterior_intervals(model, point_est, prob, args...; kwargs...)
+    plot_posterior_intervals(model, prob, args...; kwargs...)
 
 Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of regression models fit in Turing.jl.
 
 Usage:
 ```julia-repl
-plot_posterior_intervals(model, "median", 0.025, 0.975)
+plot_posterior_intervals(model, 0.025, 0.975)
 ```
 
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
-- `point_est` : The measure of point estimate centrality. Options are "mean" or "median".
-- `lowerprob` : The lower bound of the credible interval to extract. 0.025 is recommended.
-- `upperprob` : The upper bound of the credible interval to extract. 0.975 is recommended.
+- `lowerprob` : The lower bound of the credible interval to extract. 0.025 is recommended to start with.
+- `upperprob` : The upper bound of the credible interval to extract. 0.975 is recommended to start with.
 """
 
-function plot_posterior_intervals(model::Chains, point_est::String, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
+function plot_posterior_intervals(model::Chains, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
 
     #------------ Argument checks ---------------
 
     # Model
 
     isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
-
-    # Point estimate method
-
-    (point_est != "mean" || point_est != "median") || error("`point_est` should be a string specification of either 'mean' or 'median'.")
 
     # Numerical probabilities
 
@@ -55,25 +50,15 @@ function plot_posterior_intervals(model::Chains, point_est::String, lowerprob::F
 
     posteriorDF = DataFrames.stack(posteriorDF, 1:ncols)
 
-    # Extract mean/media and lower and upper quantiles for each parameter
+    # Extract median and lower and upper quantiles for each parameter
 
-    if point_est == "mean"
-        posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => mean)
-    else
-        posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => median)
-    end
-
+    posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => median)
     posteriorDFLower = combine(groupby(posteriorDF, :variable), :value => lower -> quantile(lower, lowerprob))
     posteriorDFUpper = combine(groupby(posteriorDF, :variable), :value => upper -> quantile(upper, upperprob))
 
     # Rename columns for appropriate usage and interpretability
 
-    if point_est == "mean"
-        posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_mean => :centre)
-    else
-        posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
-    end
-    
+    posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
     posteriorDFLower = DataFrames.rename(posteriorDFLower, :value_function => :lower)
     posteriorDFUpper = DataFrames.rename(posteriorDFUpper, :value_function => :upper)
 
@@ -95,7 +80,7 @@ function plot_posterior_intervals(model::Chains, point_est::String, lowerprob::F
         legend = false,
         seriestype = :scatter,
         marker = stroke(RGB(24/255,137/255,230/255), RGB(92/255,172/255,238/255)),
-        title = string("Posterior ", point_est, "s w/ ", round(credibleinterval, digits = 0), "% intervals"),
+        title = string("Posterior medians w/ ", round(credibleinterval, digits = 0), "% intervals"),
         xlabel = "Posterior Value",
         ylabel = "Parameter",
     )
@@ -137,15 +122,21 @@ function plot_posterior_hist(model::Chains, parameter::Symbol)
 
     posteriorDF = DataFrame(model)
     thevec = convert(Vector, posteriorDF[!,parameter])
+    m = median(thevec)
 
     #------------ Draw the plots ----------------
 
     gr() # gr backend for graphics
+    mycolor = theme_palette(:auto).colors.colors[1]
+    mycolor2 = theme_palette(:auto).colors.colors[2]
 
     # Draw plot
 
-    myPlot = Plots.histogram(thevec, title = parameter, 
-    fillalpha = 0.8, xlabel = "Posterior Value", ylabel = "", legend = false)
+    plot(thevec, title = parameter, seriestype = :histogram,
+         fillalpha = 0.6, xlabel = "Posterior Value", ylabel = "", label = "",
+         color = mycolor)
+
+    myPlot = plot!([m], seriestype = "vline", color = mycolor2, label = "Median")
 
     return myPlot
 end
