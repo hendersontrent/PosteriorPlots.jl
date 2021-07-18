@@ -10,6 +10,7 @@ StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 [compat]
 Plots = "1.13"
 StatsPlots = "0.14"
+KernelDensity = ""
 julia = "1"
 
 [targets]
