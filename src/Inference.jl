@@ -1,22 +1,20 @@
 """
 
-    plot_posterior_intervals(model, lowerprob, upperprob, args...; kwargs...)
+    plot_posterior_intervals(model, args...; kwargs...)
 
 Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of regression models fit in Turing.jl.
 
 Usage:
 ```julia-repl
-plot_posterior_intervals(model, 0.025, 0.975)
+plot_posterior_intervals(model)
 ```
 
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
-- `lowerprob` : The lower bound of the credible interval to extract. 0.025 is recommended to start with.
-- `upperprob` : The upper bound of the credible interval to extract. 0.975 is recommended to start with.
 """
 
-function plot_posterior_intervals(model::Chains, lowerprob::Float64, upperprob::Float64, args...; kwargs...)
+function plot_posterior_intervals(model::Chains, args...; kwargs...)
 
     #------------ Argument checks ---------------
 
@@ -24,65 +22,33 @@ function plot_posterior_intervals(model::Chains, lowerprob::Float64, upperprob::
 
     isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
 
-    # Numerical probabilities
-
-    isa(lowerprob, Number) || error("`lowerprob` must be a floating point value.")
-    isa(upperprob, Number) || error("`upperprob` must be a floating point value.")
-
-    lowerprob + upperprob == 1.0 || error("`lowerprob` and `upperprob` must sum to 1. Consider using lowerprob = 0.025 and upperprob = 0.975 as a starting point for 95% credible intervals.")
-
     #------------ Reshaping and calcs -----------
 
     # Fix seed for reproducibility
 
     Random.seed!(123)
 
-    posteriorDF = DataFrame(model)
+    finalPost = DataFrame(MCMCChains.quantile(chain))
 
-    # Remove sampler-specific columns as only model parameters are of interest here
-
-    posteriorDF = DataFrames.select(posteriorDF, Not([:iteration, :chain, :lp, :n_steps, :is_accept, :acceptance_rate, :log_density, :hamiltonian_energy, :hamiltonian_energy_error,  :max_hamiltonian_energy_error,  :tree_depth, :numerical_error, :step_size, :nom_step_size]))
-
-    # Reshape into long form DataFrame for summarisation
-
-    nrows, ncols = size(posteriorDF)
-
-    posteriorDF = DataFrames.stack(posteriorDF, 1:ncols)
-
-    # Extract median and lower and upper quantiles for each parameter
-
-    posteriorDFPoint = combine(groupby(posteriorDF, :variable), :value => median)
-    posteriorDFLower = combine(groupby(posteriorDF, :variable), :value => lower -> quantile(lower, lowerprob))
-    posteriorDFUpper = combine(groupby(posteriorDF, :variable), :value => upper -> quantile(upper, upperprob))
-
-    # Rename columns for appropriate usage and interpretability
-
-    posteriorDFPoint = DataFrames.rename(posteriorDFPoint, :value_median => :centre)
-    posteriorDFLower = DataFrames.rename(posteriorDFLower, :value_function => :lower)
-    posteriorDFUpper = DataFrames.rename(posteriorDFUpper, :value_function => :upper)
-
-    # Merge all back together
-
-    tmpPost = leftjoin(posteriorDFPoint, posteriorDFLower, on = :variable)
-    finalPost = leftjoin(tmpPost, posteriorDFUpper, on = :variable)
+    finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", "50.0%" => "centre", "97.5%" => "upper")
+    
+    variable = finalPost[!, :parameters]
+    variable = string.(variable)
+    lower = finalPost[!, :lower]
+    centre = finalPost[!, :centre]
+    upper = finalPost[!, :upper]
 
     #------------ Draw the plot -----------------
 
     gr() # gr backend for graphics
-    credibleinterval = (upperprob-lowerprob)*100
     mycolor = theme_palette(:auto).colors.colors[1]
 
-    myPlot = @df finalPost plot(
-        :centre,
-        :variable,
-        xerror = (:lower, :upper),
-        legend = false,
-        seriestype = :scatter,
-        marker = stroke(mycolor, mycolor),
-        title = string("Posterior medians w/ ", round(credibleinterval, digits = 0), "% intervals"),
-        xlabel = "Posterior Value",
-        ylabel = "Parameter",
-    )
+    myPlot = plot(centre, variable, xerror = (centre .- lower, upper .- centre), st = :scatter,
+                title = "Posterior medians w/ 95% credible intervals",
+                xlabel = "Value",
+                ylabel = "Parameter",
+                legend = false,
+                marker = stroke(mycolor, mycolor))
 
     return myPlot
 end
