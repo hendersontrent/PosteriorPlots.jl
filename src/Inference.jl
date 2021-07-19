@@ -68,9 +68,9 @@ function plot_posterior_intervals(model::Chains, lowerprob::Float64, upperprob::
 
     #------------ Draw the plot -----------------
 
-    credibleinterval = (upperprob-lowerprob)*100
-
     gr() # gr backend for graphics
+    credibleinterval = (upperprob-lowerprob)*100
+    mycolor = theme_palette(:auto).colors.colors[1]
 
     myPlot = @df finalPost plot(
         :centre,
@@ -78,7 +78,7 @@ function plot_posterior_intervals(model::Chains, lowerprob::Float64, upperprob::
         xerror = (:lower, :upper),
         legend = false,
         seriestype = :scatter,
-        marker = stroke(RGB(24/255,137/255,230/255), RGB(92/255,172/255,238/255)),
+        marker = stroke(mycolor, mycolor),
         title = string("Posterior medians w/ ", round(credibleinterval, digits = 0), "% intervals"),
         xlabel = "Posterior Value",
         ylabel = "Parameter",
