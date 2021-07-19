@@ -14,7 +14,7 @@ Arguments:
 - `y` : The vector of model response variable predictions to plot.
 """
 
-function plot_density_check(model::Chains, y::Vector, draws::Int64, args...; kwargs...)
+function plot_density_check(model::Chains, y::Vector, draws::Int, args...; kwargs...)
 
         #------------ Argument checks ---------------
 
@@ -22,7 +22,7 @@ function plot_density_check(model::Chains, y::Vector, draws::Int64, args...; kwa
 
         isa(y, Vector) || error("`parameter` must be an object of class Vector specifying the name of a created vector of predicted response variable values for the Turing model.")
 
-        isa(draws, Int64) || error("`draws` must be an object of class Int64 denoting the number of random draws to make from the model posterior distribution.")
+        isa(draws, Int) || error("`draws` must be an object of class Int64 denoting the number of random draws to make from the model posterior distribution.")
 
         #------------ Posterior draws ---------------
 
