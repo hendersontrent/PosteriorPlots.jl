@@ -1,20 +1,20 @@
 """
 
-    plot_posterior_density_check(x, y, args...; kwargs...)
+    plot_posterior_density_check(model, y, draws, args...; kwargs...)
 
-Draw a density plot of response variable posterior distributions against the density estimation of the actual data to visualise model fit.
+Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_posterior_density_check(x, y)
+plot_posterior_density_check(model, y, draws)
 ```
 Arguments:
 
-- `x` : The vector of the actual data values to plot.
+- `model` : The Turing.jl model to draw inferences from.
 - `y` : The vector of model response variable predictions to plot.
 """
 
-function plot_density_check(x::Vector, y::Vector, args...; kwargs...)
+function plot_density_check(model::Chains, y::Vector, draws::Int64, args...; kwargs...)
 
         #------------ Argument checks ---------------
 
@@ -22,14 +22,19 @@ function plot_density_check(x::Vector, y::Vector, args...; kwargs...)
 
         isa(y, Vector) || error("`parameter` must be an object of class Vector specifying the name of a created vector of predicted response variable values for the Turing model.")
 
+        isa(draws, Int64) || error("`draws` must be an object of class Int64 denoting the number of random draws to make from the model posterior distribution.")
+
+        #------------ Posterior draws ---------------
+
+        x
+
         #------------ Draw the plot -----------------
 
         gr() # gr backend for graphics
         mycolor = theme_palette(:auto).colors.colors[1]
-        mycolor2 = theme_palette(:auto).colors.colors[2]
 
-        plot(x, label = "Real Data", seriestype = :density, color = mycolor)
-        plot!(y, label = "Posterior Predictions", seriestype = :density, color = mycolor2)
+        plot(x, label = "Posterior Draws", seriestype = :density, color = :grey, alpha = 0.5)
+        plot!(y, label = "Real Data", seriestype = :density, color = mycolor)
         myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
 
         return myPlot
