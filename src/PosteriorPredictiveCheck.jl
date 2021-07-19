@@ -30,7 +30,7 @@ function plot_density_check(x::Vector, y::Vector, args...; kwargs...)
 
         plot(x, label = "Real Data", seriestype = :density, color = mycolor)
         plot!(y, label = "Posterior Predictions", seriestype = :density, color = mycolor2)
-        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Posterior Value", ylabel = "Density")
+        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
 
         return myPlot
 end
@@ -74,7 +74,7 @@ function plot_posterior_hist(x::Vector, y::Vector, args...; kwargs...)
 
         plot(x, label = "Real Data", seriestype = :histogram, color = mycolor)
         plot!([m], seriestype = "vline", color = mycolor, label = "Real Data Median")
-        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Posterior Value", ylabel = "")
+        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Value", ylabel = "")
 
         return myPlot
 
