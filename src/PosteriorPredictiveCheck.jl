@@ -1,6 +1,6 @@
 """
 
-    plot_posterior_density_check(model, y, ndraws, args...; kwargs...)
+    plot_posterior_density_check(model, predmodel, y, ndraws, args...; kwargs...)
 
 Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
@@ -11,11 +11,12 @@ plot_posterior_density_check(model, y, ndraws)
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
+- `predmodel` : The Turing.jl model that specifies predictions for Missing input data.
 - `y` : The vector of response variable values.
 - `ndraws` : The number of random draws to take from the posterior distribution.
 """
 
-function plot_density_check(model::Chains, y::Vector, ndraws::Int, args...; kwargs...)
+function plot_density_check(model::Chains, predmodel::Model, y::Vector, ndraws::Int, args...; kwargs...)
 
         #------------ Argument checks ---------------
 
@@ -25,24 +26,26 @@ function plot_density_check(model::Chains, y::Vector, ndraws::Int, args...; kwar
 
         isa(ndraws, Int) || error("`ndraws` must be an object of class Int64 denoting the number of random draws to make from the model posterior distribution.")
 
-        #------------ Posterior draws ---------------
-
-        # Fix seed for reproducibility
-
-        Random.seed!(123)
-
-        # Perform draws
-
-        drawSamples = StatsBase.sample(chn[:a].value, ndraws)
-
-        #------------ Draw the plot -----------------
+        #------------ Draws and plot ----------------
 
         gr() # gr backend for graphics
         mycolor = theme_palette(:auto).colors.colors[1]
+        Random.seed!(123) # Fix seed for reproducibility
 
-        plot(drawSamples, label = string(ndraws, " Posterior Draws"), seriestype = :density, color = :grey, alpha = 0.5)
-        plot!(y, label = "Real Data", seriestype = :density, color = mycolor)
-        myPlot = plot!(title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
+        # Perform draws and add to plot
+
+        myPlot = plot()
+
+        for i in 1:ndraws
+            chain2 = sample(predmodel, NUTS(), 1000)
+            gen = generated_quantities(model, chain2)
+            plot!(p, predictions, label = string(ndraws, " Posterior Draws"), seriestype = :density, color = :grey, alpha = 0.5)
+        end
+
+        # Add original data to plot
+
+        plot!(myPlot, y, label = "Real Data", seriestype = :density, color = mycolor)
+        myPlot = plot!(myPlot, title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
 
         return myPlot
 end
