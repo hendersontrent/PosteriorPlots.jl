@@ -37,6 +37,8 @@ function plot_posterior_intervals(model::Chains, lowerprob::Float64, upperprob::
 
     Random.seed!(123)
 
+    # Convert model to DataFrame
+
     posteriorDF = DataFrame(model)
 
     # Remove sampler-specific columns as only model parameters are of interest here
