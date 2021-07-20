@@ -17,36 +17,6 @@ Arguments:
 """
 function plot_density_check(model::Chains, predmodel::Model, y::Vector, ndraws::Int, args...; kwargs...)
 
-    #------------ Argument checks ---------------
-
-    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
-
-    isa(y, Vector) || error("`y` must be an object of class Vector specifying the name of a created vector of response variable values to compare model posteriors against.")
-
-    isa(ndraws, Int) || error("`ndraws` must be an object of class Int64 denoting the number of random draws to make from the model posterior distribution.")
-
-    #------------ Draws and plot ----------------
-
-    gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[1]
-    Random.seed!(123) # Fix seed for reproducibility
-
-    # Perform draws and add to plot
-
-    myPlot = plot()
-
-    for i in 1:ndraws
-        chain2 = sample(predmodel, NUTS(), 1000)
-        gen = generated_quantities(model, chain2)
-        plot!(p, predictions, label = string(ndraws, " Posterior Draws"), seriestype = :density, color = :grey, alpha = 0.5)
-    end
-
-    # Add original data to plot
-
-    plot!(myPlot, y, label = "Real Data", seriestype = :density, color = mycolor)
-    myPlot = plot!(myPlot, title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
-
-    return myPlot
 end
 
 
@@ -69,12 +39,6 @@ Arguments:
 """
 
 function plot_posterior_hist(x::Vector, y::Vector, args...; kwargs...)
-
-        #------------ Argument checks ---------------
-
-        isa(x, Vector) || error("`x` must be an object of class Vector specifying the name of a created vector of values for the parameter of interest that were entered into the Turing model.")
-
-        isa(y, Vector) || error("`parameter` must be an object of class Vector specifying the name of a created vector of predicted response variable values for the Turing model.")
 
         #------------ Computations ------------------
 
