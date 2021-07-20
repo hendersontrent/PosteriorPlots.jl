@@ -16,39 +16,7 @@ Arguments:
 - `ndraws` : The number of random draws to take from the posterior distribution.
 """
 
-function plot_density_check(model::Chains, predmodel::Model, y::Vector, ndraws::Int, args...; kwargs...)
 
-        #------------ Argument checks ---------------
-
-        isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
-
-        isa(y, Vector) || error("`y` must be an object of class Vector specifying the name of a created vector of response variable values to compare model posteriors against.")
-
-        isa(ndraws, Int) || error("`ndraws` must be an object of class Int64 denoting the number of random draws to make from the model posterior distribution.")
-
-        #------------ Draws and plot ----------------
-
-        gr() # gr backend for graphics
-        mycolor = theme_palette(:auto).colors.colors[1]
-        Random.seed!(123) # Fix seed for reproducibility
-
-        # Perform draws and add to plot
-
-        myPlot = plot()
-
-        for i in 1:ndraws
-            chain2 = sample(predmodel, NUTS(), 1000)
-            gen = generated_quantities(model, chain2)
-            plot!(p, predictions, label = string(ndraws, " Posterior Draws"), seriestype = :density, color = :grey, alpha = 0.5)
-        end
-
-        # Add original data to plot
-
-        plot!(myPlot, y, label = "Real Data", seriestype = :density, color = mycolor)
-        myPlot = plot!(myPlot, title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
-
-        return myPlot
-end
 
 
 
@@ -56,7 +24,7 @@ end
 
     plot_posterior_hist_check(x, y, args...; kwargs...)
 
-Draw a plot with a binned histogram of sampled parameters against a measure of centrality of the actual data to visualise model fit.
+Draw a plot with a binned histogram of posterior-predicted response variable values against a measure of centrality of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
