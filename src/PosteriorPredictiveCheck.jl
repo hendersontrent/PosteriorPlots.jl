@@ -15,7 +15,6 @@ Arguments:
 - `y` : The vector of response variable values.
 - `ndraws` : The number of random draws to take from the posterior distribution.
 """
-
 function plot_density_check(model::Chains, predmodel::Model, y::Vector, ndraws::Int, args...; kwargs...)
 
     #------------ Argument checks ---------------

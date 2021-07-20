@@ -13,14 +13,7 @@ Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
 """
-
 function plot_posterior_intervals(model::Chains, args...; kwargs...)
-
-    #------------ Argument checks ---------------
-
-    # Model
-
-    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
 
     #------------ Reshaping and calcs -----------
 
@@ -66,22 +59,16 @@ Usage:
 plot_posterior_hist(model, parameter)
 ```
 
+Details:
+
+"`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument."
+
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
 - `parameter` : The parameter of interest to plot.
 """
-
-
 function plot_posterior_hist(model::Chains, parameter::Symbol)
-    
-    #------------ Argument checks ---------------
-
-    # Model
-
-    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
-
-    isa(parameter, Symbol) || error("`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument.")
 
     #------------ Reshaping ---------------------
 
@@ -119,19 +106,16 @@ Usage:
 plot_posterior_area(model, parameter)
 ```
 
+Details:
+
+"`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument."
+
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
 - `parameter` : The parameter of interest to plot.
 """
-
 function plot_posterior_density(model::Chains, parameter::Symbol, args...; kwargs...)
-        
-    #------------ Argument checks ---------------
-
-    isa(model, Chains) || error("`model` must be an object of class Chains created by Turing.jl.")
-
-    isa(parameter, Symbol) || error("`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument.")
 
     #------------ Reshaping ---------------------
 
