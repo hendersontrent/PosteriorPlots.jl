@@ -24,7 +24,7 @@ function histhelper(data::DataFrame, p::Symbol)
     # Draw plot
 
     myPlot = plot(data[!, p], seriestype = :histogram, fillalpha = 0.6, 
-                  xlabel = "Posterior Value", ylabel = "", label = "",
+                  xlabel = "Value", ylabel = "", label = "",
                   color = mycolor, title = string(p), size = (800, 800),
                   legend = false)
 

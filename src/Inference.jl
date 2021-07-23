@@ -42,7 +42,8 @@ function plot_posterior_intervals(model::Chains, args...; kwargs...)
                 ylabel = "Parameter",
                 legend = false,
                 marker = stroke(mycolor, mycolor),
-                markersize = 6)
+                markersize = 6,
+                size = (600, 600))
 
     return myPlot
 end
