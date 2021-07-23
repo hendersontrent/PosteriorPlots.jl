@@ -17,6 +17,28 @@ Arguments:
 """
 function plot_density_check(model::Chains, predmodel::Model, y::Vector, ndraws::Int, args...; kwargs...)
 
+    #------------ Draws and plot ----------------
+
+    gr() # gr backend for graphics
+    mycolor = theme_palette(:auto).colors.colors[1]
+    Random.seed!(123) # Fix seed for reproducibility
+
+    # Perform draws and add to plot
+
+    myPlot = plot()
+
+    for i in 1:ndraws
+        chain2 = sample(predmodel, NUTS(), 1000)
+        gen = generated_quantities(model, chain2)
+        plot!(p, predictions, label = string(ndraws, " Posterior Draws"), seriestype = :density, color = :grey, alpha = 0.5)
+    end
+
+    # Add original data to plot
+
+    plot!(myPlot, y, label = "Real Data", seriestype = :density, color = mycolor)
+    myPlot = plot!(myPlot, title = "Posterior Predictive Check", xlabel = "Value", ylabel = "Density")
+
+    return myPlot
 end
 
 

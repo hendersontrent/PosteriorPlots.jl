@@ -21,7 +21,7 @@ function plot_posterior_intervals(model::Chains, args...; kwargs...)
 
     Random.seed!(123)
 
-    finalPost = DataFrame(MCMCChains.quantile(chain))
+    finalPost = DataFrame(MCMCChains.quantile(model))
 
     finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", "50.0%" => "centre", "97.5%" => "upper")
     
@@ -41,7 +41,8 @@ function plot_posterior_intervals(model::Chains, args...; kwargs...)
                 xlabel = "Value",
                 ylabel = "Parameter",
                 legend = false,
-                marker = stroke(mycolor, mycolor))
+                marker = stroke(mycolor, mycolor),
+                markersize = 6)
 
     return myPlot
 end
@@ -50,98 +51,88 @@ end
 
 """
 
-    plot_posterior_hist(model, parameter, args...; kwargs...)
+    plot_posterior_hist(model, args...; kwargs...)
 
 Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in Turing.jl.
 
 Usage:
 ```julia-repl
-plot_posterior_hist(model, parameter)
+plot_posterior_hist(model)
 ```
 
 Details:
 
-"`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument."
+Note that to get the function to work, you need to call it using a splat, such as `plot(plot_posterior_hist(chain)...)`.
 
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
-- `parameter` : The parameter of interest to plot.
 """
-function plot_posterior_hist(model::Chains, parameter::Symbol)
+function plot_posterior_hist(model::Chains, args...; kwargs...)
 
     #------------ Reshaping ---------------------
 
+    # Raw posterior samples
+
     posteriorDF = DataFrame(model)
-    thevec = convert(Vector, posteriorDF[!,parameter])
-    m = median(thevec)
+
+    # Retrieve just the model parameter names to avoid the sampler specific columns
+
+    paramsData = DataFrame(MCMCChains.summarize(model))
+    params = paramsData[!, :parameters]
 
     #------------ Draw the plots ----------------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[1]
-    mycolor2 = theme_palette(:auto).colors.colors[2]
 
-    # Draw plot
+    # Draw plot for each parameter
 
-    plot(thevec, title = parameter, seriestype = :histogram,
-         fillalpha = 0.6, xlabel = "Posterior Value", ylabel = "", label = "",
-         color = mycolor)
+    myPlotArray = [histhelper(posteriorDF, p) for p in params]
 
-    myPlot = plot!([m], seriestype = "vline", color = mycolor2, label = "Median")
-
-    return myPlot
+    return myPlotArray
 end
 
 
 
 """
 
-    plot_posterior_density(model, parameter, args...; kwargs...)
+    plot_posterior_density(model, args...; kwargs...)
 
 Draw a density plot of sampled parameters for easy interpretation of regression models fit in Turing.jl.
 
 Usage:
 ```julia-repl
-plot_posterior_area(model, parameter)
+plot_posterior_density(model)
 ```
 
 Details:
 
-"`parameter` must be an object of class Symbol specifying an exact parameter name from your model. For example, if you wanted to plot an intercept term that was called β0, you would enter :β0 in the function argument."
+Note that to get the function to work, you need to call it using a splat, such as `plot(plot_posterior_density(chain)...)`.
 
 Arguments:
 
 - `model` : The Turing.jl model to draw inferences from.
-- `parameter` : The parameter of interest to plot.
 """
-function plot_posterior_density(model::Chains, parameter::Symbol, args...; kwargs...)
+function plot_posterior_density(model::Chains, args...; kwargs...)
 
     #------------ Reshaping ---------------------
 
+    # Raw posterior samples
+
     posteriorDF = DataFrame(model)
-    thevec = convert(Vector, posteriorDF[!,parameter])
-    m = median(thevec)
-    y = kde(thevec)
-    lowerquantile = quantile(thevec, 0.025)
-    upperquantile = quantile(thevec, 0.975)
+
+    # Retrieve just the model parameter names to avoid the sampler specific columns
+
+    paramsData = DataFrame(MCMCChains.summarize(model))
+    params = paramsData[!, :parameters]
 
     #------------ Draw the plots ----------------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[1]
 
-    # Draw plot
+    # Draw plot for each parameter
 
-    plot(thevec, title = parameter, fillalpha = 0.8, 
-         xlabel = "Posterior Value", ylabel = "Density", label = "",
-         seriestype = :density, color = mycolor)
+    myPlotArray = [denshelper(posteriorDF, p) for p in params]
 
-    plot!(range(lowerquantile, stop = upperquantile, length = 100), thevec -> pdf(y,thevec), color = mycolor, 
-          fill = (0, 0.4, mycolor),
-          label = "95% credible interval", legend = true)
-
-    myPlot = plot!([m], seriestype = "vline", color = mycolor, label = "Median")
-
-    return myPlot
+    return myPlotArray
 end
