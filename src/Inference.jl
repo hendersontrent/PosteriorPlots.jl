@@ -30,6 +30,14 @@ function plot_posterior_intervals(model, args...; kwargs...)
         thefloats = select(myarray, findall(col -> eltype(col) <: Float64, eachcol(myarray)))
         ncols = size(thefloats, 2)
         stackedfloats = stack(thefloats, 1:ncols)
+        centrefloats = combine(groupby(stackedfloats, :variable), :value => median)
+        centrefloats = rename(centrefloats, :value_median => :centre)
+        lowerfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, .025))
+        lowerfloats = rename(lowerfloats, :value_function => :lower)
+        upperfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, .975))
+        upperfloats = rename(upperfloats, :value_function => :upper)
+        finalfloats = leftjoin(centrefloats, lowerfloats, on = :variable)
+        finalfloats = leftjoin(finalfloats, upperfloats, on = :variable)
 
         # Wrangle arrays
 
