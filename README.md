@@ -1,8 +1,9 @@
 # PosteriorPlots.jl
-Graphical tools for posterior distributions of Turing models.
 
 [![DOI](https://zenodo.org/badge/386667603.svg)](https://zenodo.org/badge/latestdoi/386667603)
 [![Coverage](https://codecov.io/gh/hendersontrent/PosteriorPlots.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/hendersontrent/PosteriorPlots.jl)
+
+Graphical tools for Bayesian inference and posterior predictive checks.
 
 ## Motivation
 
