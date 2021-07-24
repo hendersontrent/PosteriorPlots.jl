@@ -26,3 +26,5 @@ R has excellent packages for the plotting and analysis of Bayesian models fit in
 ## Future work
 
 Currently, package functionality only works for models with continuous response variables (and therefore probability density functions). Work in the near future will add functionality to handle discrete response variables and their probability mass function requirements.
+
+Future work will also expand `PosteriorPlots.jl` functionality to accept models from other probabilistic programming systems in Julia such as [`Soss.jl`](https://github.com/cscherrer/Soss.jl). Please check back soon for an update on this!
