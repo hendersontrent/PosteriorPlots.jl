@@ -2,7 +2,7 @@
 
     plot_posterior_intervals(model, args...; kwargs...)
 
-Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of regression models fit in Turing.jl.
+Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of regression models fit in `Turing.jl` and `Soss.jl`.
 
 Usage:
 ```julia-repl
@@ -11,25 +11,51 @@ plot_posterior_intervals(model)
 
 Arguments:
 
-- `model` : The Turing.jl model to draw inferences from.
+- `model` : The Turing.jl or Soss.jl model to draw inferences from.
 """
-function plot_posterior_intervals(model::Chains, args...; kwargs...)
-
-    #------------ Reshaping and calcs -----------
+function plot_posterior_intervals(model, args...; kwargs...)
 
     # Fix seed for reproducibility
 
     Random.seed!(123)
 
-    finalPost = DataFrame(MCMCChains.quantile(model))
+    # Turn model objects into DataFrames
 
-    finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", "50.0%" => "centre", "97.5%" => "upper")
-    
-    variable = finalPost[!, :parameters]
-    variable = string.(variable)
-    lower = finalPost[!, :lower]
-    centre = finalPost[!, :centre]
-    upper = finalPost[!, :upper]
+    if isa(model, Array)
+
+        myarray = DataFrame(model)
+        
+        # Wrangle floats
+
+        thefloats = select(df, findall(col -> eltype(col) <: Float64, eachcol(df)))
+
+        # Wrangle arrays
+
+        x
+
+        # Bind together
+
+        x
+
+        # Compute quantiles
+
+        x
+
+    elseif isa(model, Chains)
+        
+        finalPost = DataFrame(MCMCChains.quantile(model))
+
+        finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", 
+                            "50.0%" => "centre", "97.5%" => "upper")
+
+        variable = finalPost[!, :parameters]
+        variable = string.(variable)
+        lower = finalPost[!, :lower]
+        centre = finalPost[!, :centre]
+        upper = finalPost[!, :upper]
+    else
+        error("`model` must be an object of type Chains or Array.")
+    end
 
     #------------ Draw the plot -----------------
 
