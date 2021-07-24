@@ -25,23 +25,39 @@ function plot_posterior_intervals(model, args...; kwargs...)
 
         myarray = DataFrame(model)
         
-        # Wrangle floats
+        #-------- Wrangle floats --------
+
+        # Reshape
 
         thefloats = select(myarray, findall(col -> eltype(col) <: Float64, eachcol(myarray)))
         ncols = size(thefloats, 2)
         stackedfloats = stack(thefloats, 1:ncols)
+
+        # Median
+
         centrefloats = combine(groupby(stackedfloats, :variable), :value => median)
         centrefloats = rename(centrefloats, :value_median => :centre)
+
+        # Lower quantile
+
         lowerfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, .025))
         lowerfloats = rename(lowerfloats, :value_function => :lower)
+
+        # Upper quantile
+
         upperfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, .975))
         upperfloats = rename(upperfloats, :value_function => :upper)
+
+        # Join together
+
         finalfloats = leftjoin(centrefloats, lowerfloats, on = :variable)
         finalfloats = leftjoin(finalfloats, upperfloats, on = :variable)
 
-        # Wrangle arrays
+        #-------- Wrangle arrays --------
 
-        x
+        # Reshape
+
+        thearrays = select(myarray, findall(col -> eltype(col) <: Array, eachcol(myarray)))
 
         # Bind together
 
@@ -51,12 +67,30 @@ function plot_posterior_intervals(model, args...; kwargs...)
 
         x
 
+        #-------- Final outputs ---------
+
+        # Merge together
+
+        x
+
+        # Standardise outputs
+
+        variable = finalPost[!, :parameters]
+        variable = string.(variable)
+        lower = finalPost[!, :lower]
+        centre = finalPost[!, :centre]
+        upper = finalPost[!, :upper]
+
     elseif isa(model, Chains)
+
+        # Extract values
         
         finalPost = DataFrame(MCMCChains.quantile(model))
 
         finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", 
                             "50.0%" => "centre", "97.5%" => "upper")
+
+        # Standardise outputs
 
         variable = finalPost[!, :parameters]
         variable = string.(variable)
