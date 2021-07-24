@@ -27,7 +27,7 @@ function plot_posterior_intervals(model, args...; kwargs...)
         
         # Wrangle floats
 
-        thefloats = select(df, findall(col -> eltype(col) <: Float64, eachcol(df)))
+        thefloats = select(myarray, findall(col -> eltype(col) <: Float64, eachcol(myarray)))
 
         # Wrangle arrays
 
