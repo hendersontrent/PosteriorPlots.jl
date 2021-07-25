@@ -10,7 +10,7 @@
 
 #----------- Histogram ------------
 
-function histhelper(data::DataFrame, p::Symbol, plot_legend::Bool)
+function histhelper(data::DataFrame, p::Symbol, add_legend::Bool)
 
     # Compute median
 
@@ -26,9 +26,9 @@ function histhelper(data::DataFrame, p::Symbol, plot_legend::Bool)
     myPlot = plot(data[!, p], seriestype = :histogram, fillalpha = 0.6, 
                   xlabel = "Value", ylabel = "", label = "",
                   color = mycolor, title = string(p), size = (800, 800),
-                  legend = plot_legend)
+                  legend = add_legend)
 
-    plot!([m], seriestype = "vline", color = mycolor2, label = "", linewidth = 2.5)
+    plot!([m], seriestype = "vline", color = mycolor2, label = "Median", linewidth = 2.5)
 
     return myPlot
 end
