@@ -10,7 +10,7 @@
 
 #----------- Histogram ------------
 
-function histhelper(data::DataFrame, p::Symbol)
+function histhelper(data::DataFrame, p::Symbol, add_legend::Bool)
 
     # Compute median
 
@@ -26,16 +26,16 @@ function histhelper(data::DataFrame, p::Symbol)
     myPlot = plot(data[!, p], seriestype = :histogram, fillalpha = 0.6, 
                   xlabel = "Value", ylabel = "", label = "",
                   color = mycolor, title = string(p), size = (800, 800),
-                  legend = false)
+                  legend = add_legend)
 
-    plot!([m], seriestype = "vline", color = mycolor2, label = "", linewidth = 2.5)
+    plot!([m], seriestype = "vline", color = mycolor2, label = "Median", linewidth = 2.5)
 
     return myPlot
 end
 
 #----------- Density --------------
 
-function denshelper(data::DataFrame, p::Symbol)
+function denshelper(data::DataFrame, p::Symbol, add_legend::Bool)
 
     # Compute median
 
@@ -56,9 +56,24 @@ function denshelper(data::DataFrame, p::Symbol)
          seriestype = :density, color = mycolor, size = (800, 800))
 
     plot!(range(lowerquantile, stop = upperquantile, length = 100), thevec -> pdf(y,thevec), 
-          color =  mycolor, fill = (0, 0.4, mycolor), label = "95% CI", legend = false)
+           color =  mycolor, fill = (0, 0.4, mycolor), label = "95% CI", legend = add_legend)
 
-    plot!([m], seriestype = "vline", color = mycolor, label = "", linewidth = 2.5)
+    plot!([m], seriestype = "vline", color = mycolor, label = "Median", linewidth = 2.5)
 
     return myPlot
+end
+
+#----------- Soss.jl parser -------
+
+# Helper function to split an arbitrarily sized array returned by `dynamicHMC` 
+# into separate columns for each parameter. This likely applies to coefficients more often than 
+# not and potentially intercepts if mixed effects models are used.
+
+function expandcol(df::DataFrame, thecol)
+
+    expandlength =  length(df[1, thecol])
+    @assert all(length.(df[!, thecol]) .== expandlength)
+    expandnames = [Symbol(thecol, "_", i) for i ∈ 1:expandlength]
+    subdf = DataFrame([getindex.(df[:, thecol], i) for i ∈ 1:lastindex(df[1, thecol])], expandnames)
+    return hcat(df, subdf)
 end
