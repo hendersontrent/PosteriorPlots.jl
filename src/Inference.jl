@@ -164,7 +164,7 @@ plot_posterior_hist(model, plot_legend)
 
 Details:
 
-Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_hist(chain, true)...)`.
+Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_hist(model, plot_legend)...)`.
 
 Arguments:
 
@@ -241,7 +241,7 @@ plot_posterior_density(model, plot_legend)
 
 Details:
 
-Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_density(chain, true)...)`.
+Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_density(model, plot_legend)...)`.
 
 Arguments:
 
