@@ -248,15 +248,38 @@ Arguments:
 - `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model::Chains, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_density(model, plot_legend::Bool, args...; kwargs...)
 
     if isa(model, Array)
 
         myarray = DataFrame(model)
 
-    elseif isa(model, Chains)
+        #-------- Wrangle floats --------
 
-        # Raw posterior samples
+        thefloats = select(myarray, findall(col -> eltype(col) <: Float64, eachcol(myarray)))
+
+        #-------- Wrangle arrays --------
+
+        thearrays = select(myarray, findall(col -> eltype(col) <: Array, eachcol(myarray)))
+        ncols_arrays = size(thearrays, 2)
+        
+        if ncols_arrays > 1
+            error("`plot_posterior_intervals` currently only works for models where an array of parameters exists for one type of parameter (e.g. β coefficients stored in the array). Other parameters can be stored as regular Float64 columns.")
+        else
+        
+            # Parse columns and retain only the separated ones
+        
+            parsedarrays = expandcol(thearrays, Symbol(names(thearrays)[1]))
+        
+            parsedarraysCols = select(parsedarrays, findall(col -> eltype(col) <: Float64, eachcol(parsedarrays)))
+        end
+
+        #-------- Merge together --------
+
+        posteriorDF = [thefloats parsedarraysCols]
+        params = propertynames(posteriorDF)
+
+    elseif isa(model, Chains)
 
         posteriorDF = DataFrame(model)
 
