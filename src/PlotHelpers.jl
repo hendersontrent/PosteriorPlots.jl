@@ -10,7 +10,7 @@
 
 #----------- Histogram ------------
 
-function histhelper(data::DataFrame, p::Symbol)
+function histhelper(data::DataFrame, p::Symbol, plot_legend::Bool)
 
     # Compute median
 
@@ -26,7 +26,7 @@ function histhelper(data::DataFrame, p::Symbol)
     myPlot = plot(data[!, p], seriestype = :histogram, fillalpha = 0.6, 
                   xlabel = "Value", ylabel = "", label = "",
                   color = mycolor, title = string(p), size = (800, 800),
-                  legend = false)
+                  legend = plot_legend)
 
     plot!([m], seriestype = "vline", color = mycolor2, label = "", linewidth = 2.5)
 
@@ -35,7 +35,7 @@ end
 
 #----------- Density --------------
 
-function denshelper(data::DataFrame, p::Symbol)
+function denshelper(data::DataFrame, p::Symbol, plot_legend::Bool)
 
     # Compute median
 
@@ -56,7 +56,7 @@ function denshelper(data::DataFrame, p::Symbol)
          seriestype = :density, color = mycolor, size = (800, 800))
 
     plot!(range(lowerquantile, stop = upperquantile, length = 100), thevec -> pdf(y,thevec), 
-          color =  mycolor, fill = (0, 0.4, mycolor), label = "95% CI", legend = false)
+           color =  mycolor, fill = (0, 0.4, mycolor), label = "95% CI", legend = plot_legend)
 
     plot!([m], seriestype = "vline", color = mycolor, label = "", linewidth = 2.5)
 

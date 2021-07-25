@@ -11,7 +11,7 @@ plot_posterior_intervals(model)
 
 Arguments:
 
-- `model` : The Turing.jl or Soss.jl model to draw inferences from.
+- `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
 """
 function plot_posterior_intervals(model, args...; kwargs...)
 
@@ -142,7 +142,7 @@ function plot_posterior_intervals(model, args...; kwargs...)
                 ylabel = "Parameter",
                 legend = false,
                 marker = stroke(mycolor, mycolor),
-                markersize = 6,
+                markersize = 5,
                 size = (600, 600))
 
     return myPlot
@@ -152,24 +152,25 @@ end
 
 """
 
-    plot_posterior_hist(model, args...; kwargs...)
+    plot_posterior_hist(model, plot_legend, args...; kwargs...)
 
-Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in Turing.jl.
+Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in `Turing.jl` and `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_hist(model)
+plot_posterior_hist(model, plot_legend)
 ```
 
 Details:
 
-Note that to get the function to work, you need to call it using a splat, such as `plot(plot_posterior_hist(chain)...)`.
+Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_hist(chain, true)...)`.
 
 Arguments:
 
-- `model` : The Turing.jl model to draw inferences from.
+- `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
+- `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_hist(model::Chains, args...; kwargs...)
+function plot_posterior_hist(model::Chains, plot_legend::Bool, args...; kwargs...)
 
     #------------ Reshaping ---------------------
 
@@ -188,7 +189,7 @@ function plot_posterior_hist(model::Chains, args...; kwargs...)
 
     # Draw plot for each parameter
 
-    myPlotArray = [histhelper(posteriorDF, p) for p in params]
+    myPlotArray = [histhelper(posteriorDF, p, plot_legend) for p in params]
 
     return myPlotArray
 end
@@ -197,24 +198,25 @@ end
 
 """
 
-    plot_posterior_density(model, args...; kwargs...)
+    plot_posterior_density(model, plot_legend, args...; kwargs...)
 
-Draw a density plot of sampled parameters for easy interpretation of regression models fit in Turing.jl.
+Draw a density plot of sampled parameters for easy interpretation of regression models fit in `Turing.jl` and `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_density(model)
+plot_posterior_density(model, plot_legend)
 ```
 
 Details:
 
-Note that to get the function to work, you need to call it using a splat, such as `plot(plot_posterior_density(chain)...)`.
+Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_density(chain, true)...)`.
 
 Arguments:
 
-- `model` : The Turing.jl model to draw inferences from.
+- `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
+- `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model::Chains, args...; kwargs...)
+function plot_posterior_density(model::Chains, plot_legend::Bool, args...; kwargs...)
 
     #------------ Reshaping ---------------------
 
