@@ -58,20 +58,50 @@ function plot_posterior_intervals(model, args...; kwargs...)
         # Reshape
 
         thearrays = select(myarray, findall(col -> eltype(col) <: Array, eachcol(myarray)))
+        ncols_arrays = size(thearrays, 2)
 
-        # Bind together
+        if ncols_arrays > 1
+            error("`plot_posterior_intervals` currently only works for models where an array of parameters exists for one type of parameter (e.g. β coefficients store in the array). Other parameters can be stored as regular Float64 columns.")
+        else
 
-        x
+            # Parse columns and retain only the separated ones
 
-        # Compute quantiles
+            parsedarrays = expandcol(thearrays, Symbol(names(thearrays)[1]))
 
-        x
+            parsedarraysCols = select(parsedarrays, findall(col -> eltype(col) <: Float64, eachcol(parsedarrays)))
+
+            # Reshape
+
+            ncols_res_arrays = size(parsedarraysCols, 2)
+            stackedarraysfloats = stack(parsedarraysCols, 1:ncols_res_arrays)
+
+            # Median
+
+            centrefloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median)
+            centrefloatsarrays = rename(centrefloatsarrays, :value_median => :centre)
+
+            # Lower quantile
+
+            lowerfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => t -> quantile(t, .025))
+            lowerfloatsarrays = rename(lowerfloatsarrays, :value_function => :lower)
+
+            # Upper quantile
+
+            upperfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => t -> quantile(t, .975))
+            upperfloatsarrays = rename(upperfloatsarrays, :value_function => :upper)
+
+            # Join together
+
+            finalfloatsarrays = leftjoin(centrefloatsarrays, lowerfloatsarrays, on = :variable)
+            finalfloatsarrays = leftjoin(finalfloatsarrays, upperfloatsarrays, on = :variable)
+        end
 
         #-------- Final outputs ---------
 
         # Merge together
 
-        x
+        finalPost = [finalfloats; finalfloatsarrays]
+        finalPost = rename(finalPost, :variable => :parameters)
 
         # Standardise outputs
 

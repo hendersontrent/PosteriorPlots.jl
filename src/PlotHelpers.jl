@@ -65,8 +65,12 @@ end
 
 #----------- Soss.jl parser -------
 
+# Helper function to split an arbitrarily sized array returned by `dynamicHMC` 
+# into separate columns for each parameter. This likely applies to coefficients more often than 
+# not and potentially intercepts if mixed effects models are used.
+
 function expandcol(df::DataFrame, thecol)
-    
+
     expandlength =  length(df[1, thecol])
     @assert all(length.(df[!, thecol]) .== expandlength)
     expandnames = [Symbol(thecol, "_", i) for i ∈ 1:expandlength]
