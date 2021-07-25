@@ -62,3 +62,14 @@ function denshelper(data::DataFrame, p::Symbol)
 
     return myPlot
 end
+
+#----------- Soss.jl parser -------
+
+function expandcol(df::DataFrame, thecol)
+    
+    expandlength =  length(df[1, thecol])
+    @assert all(length.(df[!, thecol]) .== expandlength)
+    expandnames = [Symbol(thecol, "_", i) for i ∈ 1:expandlength]
+    subdf = DataFrame([getindex.(df[:, thecol], i) for i ∈ 1:lastindex(df[1, thecol])], expandnames)
+    return hcat(df, subdf)
+end
