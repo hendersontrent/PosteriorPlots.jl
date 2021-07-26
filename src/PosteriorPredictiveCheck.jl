@@ -1,19 +1,19 @@
 """
 
-    plot_posterior_density_check(model, predmodel, y, ndraws, args...; kwargs...)
+    plot_density_check(model, predmodel, y, ndraws, args...; kwargs...)
 
 Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_posterior_density_check(model, y, ndraws)
+plot_density_check(model, y, ndraws)
 ```
 Arguments:
 
-- `model` : The Turing.jl model to draw inferences from.
-- `predmodel` : The Turing.jl model that specifies predictions for Missing input data.
+- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
+- `predmodel` : The `Turing.jl` or `Soss.jl` model that specifies predictions for Missing input data.
 - `y` : The vector of response variable values.
-- `ndraws` : The number of random draws to take from the posterior distribution.
+- `ndraws` : The number of random draws to make from the posterior distribution.
 """
 function plot_density_check(model::Chains, predmodel::Model, y::Vector, ndraws::Int, args...; kwargs...)
 
@@ -45,13 +45,13 @@ end
 
 """
 
-    plot_posterior_hist_check(x, y, args...; kwargs...)
+    plot_hist_check(x, y, args...; kwargs...)
 
 Draw a plot with a binned histogram of posterior-predicted response variable values against a measure of centrality of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_posterior_hist(x, y)
+plot_hist_check(x, y)
 ```
 
 Arguments:
@@ -60,7 +60,7 @@ Arguments:
 - `y` : The vector of model response variable predictions to plot.
 """
 
-function plot_posterior_hist(x::Vector, y::Vector, args...; kwargs...)
+function plot_hist_check(x::Vector, y::Vector, args...; kwargs...)
 
         #------------ Computations ------------------
 
