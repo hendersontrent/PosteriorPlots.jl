@@ -49,7 +49,7 @@ posterior = dynamicHMC(model(X=X), (y=y_true,))
 @testset "PosteriorPlots.jl" begin
     # plot_posterior_intervals
     println("plot_posterior_intervals")
-    plot(plot_posterior_intervals(posterior)...)
+    plot_posterior_intervals(posterior)
     println()
 
     # plot_posterior_hist
