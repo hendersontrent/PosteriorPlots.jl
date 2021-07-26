@@ -12,7 +12,7 @@ plot_posterior_intervals(model)
 
 Arguments:
 
-- `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
+- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
 """
 function plot_posterior_intervals(model, args...; kwargs...)
 
@@ -168,7 +168,7 @@ Note that to get the function to work, you may need to call it using a splat, su
 
 Arguments:
 
-- `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
+- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
 function plot_posterior_hist(model, plot_legend::Bool, args...; kwargs...)
@@ -245,7 +245,7 @@ Note that to get the function to work, you may need to call it using a splat, su
 
 Arguments:
 
-- `model` : The Turing.jl or Soss.jl model of class `Chains` or `Array` to draw inferences from.
+- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
 function plot_posterior_density(model, plot_legend::Bool, args...; kwargs...)
