@@ -1,27 +1,43 @@
 """
 
-    plot_density_check(y, yrep, args...; kwargs...)
+    plot_density_check(y, yrep, plot_legend, args...; kwargs...)
 
 Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_density_check(y, yrep)
+plot_density_check(y, yrep, plot_legend)
 ```
 Arguments:
 
 - `y` : The vector of response variable values.
 - `yrep` : The Draws x Values matrix of posterior predictions.
+- `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_density_check(y::Vector, yrep::AbstractMatrix, args...; kwargs...)
+function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, args...; kwargs...)
 
     gr() # gr backend for graphics
     mycolor = theme_palette(:auto).colors.colors[1]
     Random.seed!(123) # Fix seed for reproducibility
 
-    #-------- Draw plot --------
+    #-------- Wrangling --------
+
+    # Pull yreps into long DataFrame
 
     x
+
+    #-------- Draw plot --------
+
+    # yreps
+
+    myPlot = plot(thevec, title = "Posterior Predictive Check", fillalpha = 0.3, 
+        xlabel = "", ylabel = "", label = "yrep",
+        seriestype = :density, color = :grey, size = (400, 400))
+
+    # y
+
+    plot!(y, fillalpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
+        seriestype = :density, color = mycolor)
 
     return myPlot
 end
@@ -30,13 +46,13 @@ end
 
 """
 
-    plot_hist_check(y, yrep, args...; kwargs...)
+    plot_hist_check(y, yrep, plot_legend, args...; kwargs...)
 
 Draw a plot with a binned histogram of posterior-predicted response variable values against a measure of centrality of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_hist_check(y, yrep)
+plot_hist_check(y, yrep, plot_legend)
 ```
 
 Arguments:
