@@ -11,12 +11,12 @@ plot_density_check(y, yrep, plot_legend)
 
 Details:
 
-The `yrep` matrix should have individual draws from the posterior distribution in columns and unique values (matching the length of the `y` vector in length) in rows.
+The `yrep` matrix should have individual draws from the posterior distribution in rows and unique values (matching the length of the `y` vector in length) in columns.
 
 Arguments:
 
 - `y` : The vector of response variable values.
-- `yrep` : The Values x Draws matrix of posterior predictions.
+- `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
 function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, args...; kwargs...)
@@ -24,10 +24,10 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
     # Check object sizes
 
     length1 = size(y, 1)
-    length2 = size(yrep, 1)
-    ncols = size(yrep, 2)
+    length2 = size(yrep, 2)
+    nrows = size(yrep, 1)
 
-    length1 == length2 || error("Number of rows in `yrep` should match the length of vector `y`.")
+    length1 == length2 || error("Number of columns in `yrep` should match the length of vector `y`.")
 
     #-------- Draw plot --------
 
@@ -36,18 +36,27 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
     Random.seed!(123) # Fix seed for reproducibility
     Myplot = plot()
 
-    # yreps
+    # Plot posterior draws
 
-    for n in ncols
-        plot!(yrep[!, n], title = "Posterior Predictive Check", fillalpha = 0.3, 
-            xlabel = "", ylabel = "", label = "",
-            seriestype = :density, color = :grey, size = (400, 400))
+    for n in nrows
+
+        # Wrangle from wide to long
+
+        tmp = DataFrame(yrep)
+        tmp = tmp[n, !]
+        tmp = stack(tmp, 1:length2)
+
+        # Add iteration to the ßplot
+
+        plot!(tmp[!, :value], title = "Posterior Predictive Check", fillalpha = 0.3, 
+            xlabel = "", ylabel = "", label = "", seriestype = :density, color = :grey, 
+            size = (400, 400))
     end
 
-    # y
+    # Plot actual data
 
     plot!(y, fillalpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
-        seriestype = :density, color = mycolor)
+        seriestype = :density, color = mycolor, legend = plot_legend)
 
     return myPlot
 end
