@@ -48,15 +48,15 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
 
         # Add iteration to the plot
 
-        plot!(tmp[!, :value], title = "Posterior Predictive Check", fillalpha = 0.3, 
-            xlabel = "", ylabel = "", label = "", seriestype = :density, color = :grey, 
-            size = (400, 400))
+        plot!(tmp[!, :value], fillalpha = 0.3, xlabel = "", ylabel = "", label = "", 
+            seriestype = :density, color = :grey, size = (400, 400))
     end
 
     # Plot actual data
 
     plot!(y, fillalpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
-        seriestype = :density, color = mycolor, legend = plot_legend)
+        seriestype = :density, color = mycolor, legend = plot_legend,
+        title = "Posterior Predictive Check",)
 
     return myPlot
 end
@@ -83,9 +83,16 @@ Arguments:
 
 function plot_hist_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, args...; kwargs...)
 
-    # Compute median
+    # Compute median for real data vector
 
     m = median(y)
+
+    # Wrangle posterior draws from wide to long and compute median for each value
+
+    tmp = DataFrame(yrep)
+    ncols = size(tmp, 2)
+    tmp = stack(tmp, 1:ncols)
+    tmp = combine(groupby(tmp, :variable), :value => median)
 
     # Set up graphics helpers
 
@@ -94,7 +101,7 @@ function plot_hist_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, arg
 
     # Draw plot
 
-    myPlot = plot(yrep, seriestype = :histogram, fillalpha = 0.6, 
+    myPlot = plot(tmp[!, :value_median], seriestype = :histogram, fillalpha = 0.6, 
                   xlabel = "Value", ylabel = "", label = "yrep",
                   color = mycolor, title = "Posterior Predictive Check", size = (400, 400),
                   legend = plot_legend)
