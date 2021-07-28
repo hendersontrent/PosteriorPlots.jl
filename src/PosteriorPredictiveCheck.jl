@@ -8,25 +8,31 @@ Usage:
 ```julia-repl
 plot_density_check(y, yrep, plot_legend)
 ```
+
+Details:
+
+The `yrep` matrix should have individual draws from the posterior distribution in columns and unique values (matching the length of the `y` vector) in length.
+
 Arguments:
 
 - `y` : The vector of response variable values.
-- `yrep` : The Draws x Values matrix of posterior predictions.
+- `yrep` : The Values x Draws matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
 function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, args...; kwargs...)
 
+    # Check object sizes
+
+    length1 = size(y, 1)
+    length2 = size(yrep, 2)
+
+    length1 == length2 || error("Number of columns in `yrep` should match the length of vector `y`.")
+
+    #-------- Draw plot --------
+
     gr() # gr backend for graphics
     mycolor = theme_palette(:auto).colors.colors[1]
     Random.seed!(123) # Fix seed for reproducibility
-
-    #-------- Wrangling --------
-
-    # Pull yreps into long DataFrame
-
-    x
-
-    #-------- Draw plot --------
 
     # yreps
 
