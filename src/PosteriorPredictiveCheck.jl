@@ -46,7 +46,7 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
         tmp = tmp[n, !]
         tmp = stack(tmp, 1:length2)
 
-        # Add iteration to the ßplot
+        # Add iteration to the plot
 
         plot!(tmp[!, :value], title = "Posterior Predictive Check", fillalpha = 0.3, 
             xlabel = "", ylabel = "", label = "", seriestype = :density, color = :grey, 
