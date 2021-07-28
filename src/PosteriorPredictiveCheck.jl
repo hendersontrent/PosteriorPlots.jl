@@ -11,7 +11,7 @@ plot_density_check(y, yrep, plot_legend)
 
 Details:
 
-The `yrep` matrix should have individual draws from the posterior distribution in columns and unique values (matching the length of the `y` vector) in length.
+The `yrep` matrix should have individual draws from the posterior distribution in columns and unique values (matching the length of the `y` vector in length) in rows.
 
 Arguments:
 
@@ -24,21 +24,25 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
     # Check object sizes
 
     length1 = size(y, 1)
-    length2 = size(yrep, 2)
+    length2 = size(yrep, 1)
+    ncols = size(yrep, 2)
 
-    length1 == length2 || error("Number of columns in `yrep` should match the length of vector `y`.")
+    length1 == length2 || error("Number of rows in `yrep` should match the length of vector `y`.")
 
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
     mycolor = theme_palette(:auto).colors.colors[1]
     Random.seed!(123) # Fix seed for reproducibility
+    Myplot = plot()
 
     # yreps
 
-    myPlot = plot(thevec, title = "Posterior Predictive Check", fillalpha = 0.3, 
-        xlabel = "", ylabel = "", label = "yrep",
-        seriestype = :density, color = :grey, size = (400, 400))
+    for n in ncols
+        plot!(yrep[!, n], title = "Posterior Predictive Check", fillalpha = 0.3, 
+            xlabel = "", ylabel = "", label = "",
+            seriestype = :density, color = :grey, size = (400, 400))
+    end
 
     # y
 
