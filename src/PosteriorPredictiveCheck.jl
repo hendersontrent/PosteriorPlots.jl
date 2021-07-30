@@ -41,7 +41,7 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[2]
+    mycolor = theme_palette(:auto).colors.colors[7]
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
 
@@ -73,7 +73,7 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
     # Plot actual data
 
-    plot!(y, linealpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
+    plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
         seriestype = :density, color = mycolor, legend = plot_legend,
         title = "Posterior Predictive Check", linewidth = 2)
 
