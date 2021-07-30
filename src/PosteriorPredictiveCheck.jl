@@ -19,13 +19,22 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, args...; kwargs...)
+function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
     # Check object sizes
 
+    size(y, 2) == 1 || error("`y` should have a dimension of N x 1.")
     length1 = size(y, 1)
-    length2 = size(yrep, 2)
-    nrows = size(yrep, 1)
+
+    if isa(yrep, Array)
+        length2 = size(yrep, 2)
+        nrows = size(yrep, 1)
+    elseif isa(yrep, DataFrame)
+        length2 = size(yrep, 2)
+        nrows = size(yrep, 1)
+    else
+        error("`yrep` should be an object of class `Array` or `DataFrame` containing Draws x Values matrix information.")
+    end 
 
     length1 == length2 || error("Number of columns in `yrep` should match the length of vector `y`.")
 
@@ -34,7 +43,7 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
     gr() # gr backend for graphics
     mycolor = theme_palette(:auto).colors.colors[1]
     Random.seed!(123) # Fix seed for reproducibility
-    Myplot = plot()
+    myPlot = plot()
 
     # Plot posterior draws
 
@@ -42,13 +51,18 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
 
         # Wrangle from wide to long
 
-        tmp = DataFrame(yrep)
-        tmp = tmp[n, !]
+        if isa(yrep, Array)
+            tmp = DataFrame(yrep)
+        else
+            tmp = yrep
+        end
+
+        tmp = DataFrame(tmp[n, :])
         tmp = stack(tmp, 1:length2)
 
         # Add iteration to the plot
 
-        plot!(tmp[!, :value], fillalpha = 0.3, xlabel = "", ylabel = "", label = "", 
+        plot!(tmp[!, :value], fillalpha = 0.1, xlabel = "", ylabel = "", label = "", 
             seriestype = :density, color = :grey, size = (400, 400))
     end
 
@@ -56,7 +70,7 @@ function plot_density_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, 
 
     plot!(y, fillalpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
         seriestype = :density, color = mycolor, legend = plot_legend,
-        title = "Posterior Predictive Check",)
+        title = "Posterior Predictive Check")
 
     return myPlot
 end
