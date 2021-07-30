@@ -63,19 +63,19 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
         # Add iteration to the plot
 
         if n == nrows
-            plot!(tmp2[!, :value], fillalpha = 0.1, xlabel = "", ylabel = "", label = "yrep",
+            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "yrep",
             seriestype = :density, color = :grey, size = (400, 400))
         else
-            plot!(tmp2[!, :value], fillalpha = 0.1, xlabel = "", ylabel = "", label = "",
+            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "",
             seriestype = :density, color = :grey, size = (400, 400))
         end
     end
 
     # Plot actual data
 
-    plot!(y, fillalpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
+    plot!(y, linealpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
         seriestype = :density, color = mycolor, legend = plot_legend,
-        title = "Posterior Predictive Check")
+        title = "Posterior Predictive Check", linewidth = 1.5)
 
     return myPlot
 end
@@ -99,8 +99,24 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
+function plot_hist_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
-function plot_hist_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, args...; kwargs...)
+    # Check object sizes
+
+    size(y, 2) == 1 || error("`y` should have a dimension of N x 1.")
+    length1 = size(y, 1)
+    
+    if isa(yrep, Array)
+        length2 = size(yrep, 2)
+        nrows = size(yrep, 1)
+    elseif isa(yrep, DataFrame)
+        length2 = size(yrep, 2)
+        nrows = size(yrep, 1)
+    else
+        error("`yrep` should be an object of class `Array` or `DataFrame` containing Draws x Values matrix information.")
+    end 
+    
+    length1 == length2 || error("Number of columns in `yrep` should match the length of vector `y`.")
 
     # Compute median for real data vector
 
@@ -109,8 +125,7 @@ function plot_hist_check(y::Vector, yrep::AbstractMatrix, plot_legend::Bool, arg
     # Wrangle posterior draws from wide to long and compute median for each value
 
     tmp = DataFrame(yrep)
-    ncols = size(tmp, 2)
-    tmp = stack(tmp, 1:ncols)
+    tmp = stack(tmp, 1:length2)
     tmp = combine(groupby(tmp, :variable), :value => median)
 
     # Set up graphics helpers
