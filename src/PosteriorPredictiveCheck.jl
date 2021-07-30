@@ -75,7 +75,7 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
     plot!(y, linealpha = 0.9, xlabel = "Value", ylabel = "Density", label = "y",
         seriestype = :density, color = mycolor, legend = plot_legend,
-        title = "Posterior Predictive Check", linewidth = 1.5)
+        title = "Posterior Predictive Check", linewidth = 2)
 
     return myPlot
 end
