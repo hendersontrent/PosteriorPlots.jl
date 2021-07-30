@@ -41,29 +41,34 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[1]
+    mycolor = theme_palette(:auto).colors.colors[2]
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
 
+    # Wrangle from wide to long
+
+    if isa(yrep, Array)
+        tmp = DataFrame(yrep)
+    else
+        tmp = yrep
+    end
+
     # Plot posterior draws
 
-    for n in nrows
+    for n in 1:nrows
 
-        # Wrangle from wide to long
-
-        if isa(yrep, Array)
-            tmp = DataFrame(yrep)
-        else
-            tmp = yrep
-        end
-
-        tmp = DataFrame(tmp[n, :])
-        tmp = stack(tmp, 1:length2)
+        tmp2 = DataFrame(tmp[n, :])
+        tmp2 = stack(tmp2, 1:length2)
 
         # Add iteration to the plot
 
-        plot!(tmp[!, :value], fillalpha = 0.1, xlabel = "", ylabel = "", label = "", 
+        if n == nrows
+            plot!(tmp2[!, :value], fillalpha = 0.1, xlabel = "", ylabel = "", label = "yrep",
             seriestype = :density, color = :grey, size = (400, 400))
+        else
+            plot!(tmp2[!, :value], fillalpha = 0.1, xlabel = "", ylabel = "", label = "",
+            seriestype = :density, color = :grey, size = (400, 400))
+        end
     end
 
     # Plot actual data
