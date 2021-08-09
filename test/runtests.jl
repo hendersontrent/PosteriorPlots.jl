@@ -47,20 +47,24 @@ posterior = dynamicHMC(model(X=X), (y=y_true,))
 #------------- Run package tests --------------------
 
 @testset "PosteriorPlots.jl" begin
-    # plot_posterior_intervals
-    println("plot_posterior_intervals")
-    plot_posterior_intervals(posterior)
-    println()
+    
+    p =  plot_posterior_intervals(posterior)
+    @test isa(p, Plot)
 
-    # plot_posterior_hist
-    println("plot_posterior_hist")
-    plot(plot_posterior_hist(posterior, true)...)
-    println()
+    p1 = plot(plot_posterior_hist(posterior, true)...)
+    @test isa(p1, Plot)
 
-    # plot_posterior_density
-    println("plot_posterior_density")
-    plot(plot_posterior_density(posterior, true)...)
-    println()
+    p2 = plot(plot_posterior_density(posterior, true)...)
+    @test isa(p2, Plot)
+
+    #p3 =  plot_density_check(posterior)
+    #@test isa(p3, Plot)
+
+    #p4 =  plot_hist_check(posterior)
+    #@test isa(p4, Plot)
+
+    #p5 =  plot_ecdf_check(posterior)
+    #@test isa(p5, Plot)
 end
 
 # Reset log level
