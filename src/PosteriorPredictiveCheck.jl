@@ -211,26 +211,27 @@ function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
         # ECDF calculation
 
-        x
+        tmp_function = StatsBase.ecdf(tmp2[!, :value])
+        myECDF = tmp_function(tmp2[!, :value])
 
         # Add iteration to the plot
 
         if n == nrows
-            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "yrep",
-            seriestype = :density, color = mycolor, size = (400, 400))
+            plot!(x = tmp2[!, :value], y = myECDF, linealpha = 0.2, xlabel = "", ylabel = "", label = "yrep",
+            color = mycolor, size = (400, 400))
         else
-            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "",
-            seriestype = :density, color = mycolor, size = (400, 400))
+            plot!(x = tmp2[!, :value], y = myECDF, linealpha = 0.2, xlabel = "", ylabel = "", label = "",
+            color = mycolor, size = (400, 400))
         end
     end
 
     # Compute ECDF of actual data and add to plot
 
-    x
+    y_function = StatsBase.ecdf(y)
+    myECDF_y = y_function(y)
 
-    plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
-        seriestype = :density, color = mycolor, legend = plot_legend,
-        title = "Posterior Predictive Check", linewidth = 2)
+    plot!(x = y, y = myECDF_y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
+        color = mycolor, legend = plot_legend, title = "Posterior Predictive Check", linewidth = 2)
 
     return myPlot
 end
