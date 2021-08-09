@@ -1,6 +1,6 @@
 module PosteriorPlots
 
-using DataFrames, Plots, StatsPlots, StatsBase, Random, KernelDensity, Turing, StatsBase, MCMCChains
+using DataFrames, Plots, StatsPlots, StatsBase, Random, KernelDensity, StatsBase, MCMCChains
 
 include("PlotHelpers.jl")
 include("Inference.jl")
