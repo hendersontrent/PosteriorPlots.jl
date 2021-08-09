@@ -144,3 +144,93 @@ function plot_hist_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
     return myPlot
 end
+
+
+
+"""
+
+    plot_ecdf_check(y, yrep, plot_legend, args...; kwargs...)
+
+Draw an empirical cumulative density function plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
+
+Usage:
+```julia-repl
+plot_ecdf_check(y, yrep, plot_legend)
+```
+
+Details:
+
+The `yrep` matrix should have individual draws from the posterior distribution in rows and unique values (matching the length of the `y` vector in length) in columns.
+
+Arguments:
+
+- `y` : The vector of response variable values.
+- `yrep` : The Draws x Values matrix of posterior predictions.
+- `plot_legend` : Boolean of whether to add a legend to the plot or not.
+"""
+function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+
+    # Check object sizes
+
+    size(y, 2) == 1 || error("`y` should have a dimension of N x 1.")
+    length1 = size(y, 1)
+
+    if isa(yrep, Array)
+        length2 = size(yrep, 2)
+        nrows = size(yrep, 1)
+    elseif isa(yrep, DataFrame)
+        length2 = size(yrep, 2)
+        nrows = size(yrep, 1)
+    else
+        error("`yrep` should be an object of class `Array` or `DataFrame` containing Draws x Values matrix information.")
+    end 
+
+    length1 == length2 || error("Number of columns in `yrep` should match the length of vector `y`.")
+
+    #-------- Draw plot --------
+
+    gr() # gr backend for graphics
+    mycolor = theme_palette(:auto).colors.colors[7]
+    Random.seed!(123) # Fix seed for reproducibility
+    myPlot = plot()
+
+    # Wrangle from wide to long
+
+    if isa(yrep, Array)
+        tmp = DataFrame(yrep)
+    else
+        tmp = yrep
+    end
+
+    # Compute ECDF and plot posterior draws
+
+    for n in 1:nrows
+
+        tmp2 = DataFrame(tmp[n, :])
+        tmp2 = stack(tmp2, 1:length2)
+
+        # ECDF calculation
+
+        x
+
+        # Add iteration to the plot
+
+        if n == nrows
+            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "yrep",
+            seriestype = :density, color = mycolor, size = (400, 400))
+        else
+            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "",
+            seriestype = :density, color = mycolor, size = (400, 400))
+        end
+    end
+
+    # Compute ECDF of actual data and add to plot
+
+    x
+
+    plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
+        seriestype = :density, color = mycolor, legend = plot_legend,
+        title = "Posterior Predictive Check", linewidth = 2)
+
+    return myPlot
+end
