@@ -41,7 +41,8 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[2]
+    drawscolour = cgrad(:blues)[1]
+    actualcolour = cgrad(:blues)[2]
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
 
@@ -63,18 +64,18 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
         # Add iteration to the plot
 
         if n == nrows
-            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "yrep",
-            seriestype = :density, color = :grey, size = (400, 400))
+            plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "yrep",
+            seriestype = :density, color = drawscolour, size = (400, 400))
         else
-            plot!(tmp2[!, :value], linealpha = 0.2, xlabel = "", ylabel = "", label = "",
-            seriestype = :density, color = :grey, size = (400, 400))
+            plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "",
+            seriestype = :density, color = drawscolour, size = (400, 400))
         end
     end
 
     # Plot actual data
 
     plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
-        seriestype = :density, color = mycolor, legend = plot_legend,
+        seriestype = :density, color = actualcolour, legend = plot_legend,
         title = "Posterior Predictive Check", linewidth = 2)
 
     return myPlot
@@ -130,17 +131,17 @@ function plot_hist_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
     # Set up graphics helpers
 
-    mycolor = theme_palette(:auto).colors.colors[1]
-    mycolor2 = theme_palette(:auto).colors.colors[2]
+    drawscolour = cgrad(:blues)[1]
+    actualcolour = cgrad(:blues)[2]
 
     # Draw plot
 
-    myPlot = plot(tmp[!, :value_median], seriestype = :histogram, fillalpha = 0.6, 
+    myPlot = plot(tmp[!, :value_median], seriestype = :histogram, fillalpha = 0.5, 
                   xlabel = "Value", ylabel = "", label = "yrep",
-                  color = mycolor, title = "Posterior Predictive Check", size = (400, 400),
+                  color = drawscolour, title = "Posterior Predictive Check", size = (400, 400),
                   legend = plot_legend)
 
-    plot!([m], seriestype = "vline", color = mycolor2, label = "y", linewidth = 2.5)
+    plot!([m], seriestype = "vline", color = actualcolour, label = "y", linewidth = 2.5)
 
     return myPlot
 end
@@ -190,7 +191,8 @@ function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[2]
+    drawscolour = cgrad(:blues)[1]
+    actualcolour = cgrad(:blues)[2]
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
 
@@ -216,11 +218,11 @@ function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
         # Add iteration to the plot
 
         if n == nrows
-            plot!(myECDF, linealpha = 0.2, xlabel = "", ylabel = "", label = "yrep",
-            color = :grey, size = (400, 400))
+            plot!(myECDF, linealpha = 0.4, xlabel = "", ylabel = "", label = "yrep",
+            color = drawscolour, size = (400, 400))
         else
-            plot!(myECDF, linealpha = 0.2, xlabel = "", ylabel = "", label = "",
-            color = :grey, size = (400, 400))
+            plot!(myECDF, linealpha = 0.4, xlabel = "", ylabel = "", label = "",
+            color = drawscolour, size = (400, 400))
         end
     end
 
@@ -230,11 +232,11 @@ function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
     if plot_legend == true
         plot!(yECDF, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
-        color = mycolor, legend = :bottomright, title = "Posterior Predictive Check",
+        color = actualcolour, legend = :bottomright, title = "Posterior Predictive Check",
         linewidth = 1.5)
     else
         plot!(yECDF, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
-        color = mycolor, legend = false, title = "Posterior Predictive Check", linewidth = 1.5)
+        color = actualcolour, legend = false, title = "Posterior Predictive Check", linewidth = 1.5)
     end
 
     return myPlot
