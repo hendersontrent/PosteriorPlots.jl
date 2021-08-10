@@ -18,12 +18,12 @@ function histhelper(data::DataFrame, p::Symbol, add_legend::Bool)
 
     # Set up graphics helpers
 
-    mycolor = theme_palette(:auto).colors.colors[1]
-    mycolor2 = theme_palette(:auto).colors.colors[2]
+    mycolor = cgrad(:blues)[1]
+    mycolor2 = cgrad(:blues)[2]
 
     # Draw plot
 
-    myPlot = plot(data[!, p], seriestype = :histogram, fillalpha = 0.6, 
+    myPlot = plot(data[!, p], seriestype = :histogram, fillalpha = 0.5, 
                   xlabel = "Value", ylabel = "", label = "",
                   color = mycolor, title = string(p), size = (800, 800),
                   legend = add_legend)
