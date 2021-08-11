@@ -7,7 +7,7 @@ Graphical tools for Bayesian inference and posterior predictive checks.
 
 ## Motivation
 
-R has excellent packages for the plotting and analysis of Bayesian models fit in probabilistic programming languages such as [`Stan`](https://mc-stan.org). Examples of these packages include [`bayesplot`](http://mc-stan.org/bayesplot/) and [`tidybayes`](http://mjskay.github.io/tidybayes/). The functionality afforded by these packages greatly enables researchers to automatically obtain informative and clean graphical summaries of various posterior properties of interest. While packages such as [`MCMCChains.jl`](https://turinglang.github.io/MCMCChains.jl/dev/), [`ArviZ.jl`](https://arviz-devs.github.io/ArviZ.jl/stable/), and others exist in Julia for models built in the [PPLs](https://en.wikipedia.org/wiki/Probabilistic_programming) [`Turing.jl`](https://turing.ml/stable/) and [`Soss.jl`](https://github.com/cscherrer/Soss.jl), the clean, inference-ready output aesthetics produced by `bayesplot` are not easily available by default. `PosteriorPlots.jl` seeks to bridge this gap.
+R has excellent packages for the plotting and analysis of Bayesian models fit in probabilistic programming languages such as [`Stan`](https://mc-stan.org). Examples of these packages include [`bayesplot`](http://mc-stan.org/bayesplot/) and [`tidybayes`](http://mjskay.github.io/tidybayes/). The functionality afforded by these packages greatly enables researchers to automatically obtain informative and clean graphical summaries of various posterior properties of interest. While packages such as [`MCMCChains.jl`](https://turinglang.github.io/MCMCChains.jl/dev/), [`ArviZ.jl`](https://arviz-devs.github.io/ArviZ.jl/stable/), and others exist in Julia for models built in the [PPLs](https://en.wikipedia.org/wiki/Probabilistic_programming) [`Turing.jl`](https://turing.ml/stable/) and [`Soss.jl`](https://github.com/cscherrer/Soss.jl), the clean, inference-ready output aesthetics produced by `bayesplot` are not easily available by default. `PosteriorPlots.jl` seeks to bridge this gap. Since `PosteriorPlots.jl` functions can take standard DataFrames and Arrays as inputs (as well as special object types such as Chains), it can flexibly accommodate models from `Stan` and other PPLs.
 
 ## Functionality
 
@@ -27,3 +27,18 @@ R has excellent packages for the plotting and analysis of Bayesian models fit in
 ## Future work
 
 Currently, package functionality only works for models with continuous response variables (and therefore probability density functions). Work in the near future will add functionality to handle discrete response variables and their probability mass function requirements. In addition, user-supplied quantiles for credible intervals will also be made available.
+
+## Citation instructions
+
+If you use `PosteriorPlots.jl` in your work, please cite it using the following (included as BibTeX in the package folder):
+
+```
+@Manual{PosteriorPlots.jl,
+  title={{PosteriorPlots.jl}},
+  author={Henderson, Trent},
+  year={2021},
+  month={6},
+  url={https://doi.org/10.5281/zenodo.5173723},
+  doi={10.5281/zenodo.5173723}
+}
+```

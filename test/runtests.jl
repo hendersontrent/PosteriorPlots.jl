@@ -49,13 +49,13 @@ posterior = dynamicHMC(model(X=X), (y=y_true,))
 @testset "PosteriorPlots.jl" begin
     
     p =  plot_posterior_intervals(posterior)
-    @test isa(p, Plot)
+    @test p isa Plot
 
     p1 = plot(plot_posterior_hist(posterior, true)...)
-    @test isa(p1, Plot)
+    @test p1 isa Plot
 
     p2 = plot(plot_posterior_density(posterior, true)...)
-    @test isa(p2, Plot)
+    @test p2 isa Plot
 
     #p3 =  plot_density_check(posterior)
     #@test isa(p3, Plot)
