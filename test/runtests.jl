@@ -1,5 +1,7 @@
 using PosteriorPlots
 using Test
+using Turing, Distributions, RDatasets, MCMCChains, Plots, StatsPlots, Random
+using MLDataUtils: shuffleobs, splitobs, rescale!
 
 import Logging
 
@@ -8,54 +10,67 @@ import Logging
 level = Logging.min_enabled_level(Logging.current_logger())
 Logging.disable_logging(Logging.Warn)
 
-#------------- Build some demo models ---------------
-
-using Soss
-using Random
-
-model = @model X begin
-    p = size(X, 2) # number of features
-    α ~ Normal(0, 1) # intercept
-    β ~ Normal(0, 1) |> iid(p) # coefficients
-    σ ~ HalfNormal(1) # dispersion
-    η = α .+ X * β # linear predictor
-    μ = η # `μ = g⁻¹(η) = η`
-    y ~ For(eachindex(μ)) do j
-        Normal(μ[j], σ) # `Yᵢ ~ Normal(mean=μᵢ, variance=σ²)`
-    end
-end;
-
-X = randn(6,2)
-
-forward_sample = rand(model(X=X))
-
-num_rows = 1_000
-num_features = 2
-X = randn(num_rows, num_features)
-
-β_true = [2.0, -1.0]
-α_true = 1.0
-σ_true = 0.5
-
-η_true = α_true .+ X * β_true
-μ_true = η_true
-noise = randn(num_rows) .* σ_true
-y_true = μ_true .+ noise
-
-posterior = dynamicHMC(model(X=X), (y=y_true,))
+Random.seed!(0)
+Turing.setprogress!(false)
 
 #------------- Run package tests --------------------
 
 @testset "PosteriorPlots.jl" begin
+
+    # Define an example model from the Turing.jl documentation
+
+    data = RDatasets.dataset("datasets", "mtcars")
+
+    # Remove the model column
+
+    select!(data, Not(:Model))
+
+    # Split our dataset 70%/30% into training/test sets
+
+    trainset, testset = splitobs(shuffleobs(data), 0.7)
+
+    # Turing requires data in matrix form
+
+    target = :MPG
+    train = Matrix(select(trainset, Not(target)))
+    test = Matrix(select(testset, Not(target)))
+    train_target = trainset[:, target]
+    test_target = testset[:, target]
+
+    # Standardize the features
+
+    μ, σ = rescale!(train; obsdim = 1)
+    rescale!(test, μ, σ; obsdim = 1)
+    μtarget, σtarget = rescale!(train_target; obsdim = 1)
+    rescale!(test_target, μtarget, σtarget; obsdim = 1)
+
+    # Linear regression model
+
+    @model function linear_regression(x, y)
+        σ₂ ~ truncated(Normal(0, 100), 0, Inf)
+        intercept ~ Normal(0, sqrt(3))
+        nfeatures = size(x, 2)
+        coefficients ~ MvNormal(nfeatures, sqrt(10))
+        
+        mu = intercept .+ x * coefficients
+        y ~ MvNormal(mu, sqrt(σ₂))
+    end
+
+    model = linear_regression(train, train_target)
+    chain = sample(model, NUTS(0.65), 3_000);
+
+    #------------------------------
+    # Run core PosteriorPlots tests
+    #------------------------------
     
-    p =  plot_posterior_intervals(posterior)
-    @test isa(p, Plot)
+    p =  plot_posterior_intervals(chain)
+    @test p isa Plots.GRBackend()
 
-    p1 = plot(plot_posterior_hist(posterior, true)...)
-    @test isa(p1, Plot)
+    p1 = plot(plot_posterior_hist(chain, true)...)
+    @test p1 isa Plots.GRBackend()
 
-    p2 = plot(plot_posterior_density(posterior, true)...)
-    @test isa(p2, Plot)
+    p2 = plot(plot_posterior_density(chain, true)...)
+    @test p2 isa Plots.GRBackend()
 
     #p3 =  plot_density_check(posterior)
     #@test isa(p3, Plot)
