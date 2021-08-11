@@ -13,7 +13,7 @@ StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
 MCMCChains = "c7f686f2-ff18-58e9-bc7b-31028e88f75d"
 
 [compat]
-DataFrames = "1.0"
+DataFrames = "0.22.7"
 Plots = "1.13"
 StatsPlots = "0.14"
 KernelDensity = "0.6.2"
