@@ -1,17 +1,17 @@
 using PosteriorPlots
 using Test
-
-import Logging
-
 using Turing, Distributions, RDatasets, MCMCChains, Plots, StatsPlots, Random
 using MLDataUtils: shuffleobs, splitobs, rescale!
-Random.seed!(0)
-Turing.setprogress!(false)
+
+import Logging
 
 # Silence all warnings
 
 level = Logging.min_enabled_level(Logging.current_logger())
 Logging.disable_logging(Logging.Warn)
+
+Random.seed!(0)
+Turing.setprogress!(false)
 
 #------------- Run package tests --------------------
 
@@ -64,13 +64,13 @@ Logging.disable_logging(Logging.Warn)
     #------------------------------
     
     p =  plot_posterior_intervals(chain)
-    @test p isa Plot
+    @test p isa Plots.GRBackend()
 
     p1 = plot(plot_posterior_hist(chain, true)...)
-    @test p1 isa Plot
+    @test p1 isa Plots.GRBackend()
 
     p2 = plot(plot_posterior_density(chain, true)...)
-    @test p2 isa Plot
+    @test p2 isa Plots.GRBackend()
 
     #p3 =  plot_density_check(posterior)
     #@test isa(p3, Plot)

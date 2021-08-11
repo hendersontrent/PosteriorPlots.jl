@@ -23,6 +23,7 @@ R has excellent packages for the plotting and analysis of Bayesian models fit in
 
 * Posterior predictive checks of distribution
 * Posterior predictive checks of probability mass/density
+* Posterior predictive checks of empirical cumulative density functions
 
 ## Future work
 
@@ -30,7 +31,7 @@ Currently, package functionality only works for models with continuous response 
 
 ## Citation instructions
 
-If you use `PosteriorPlots.jl` in your work, please cite it using the following (included as BibTeX in the package folder):
+If you use `PosteriorPlots.jl` in your work, please cite it using the following (included as BibTeX file in the package folder):
 
 ```
 @Manual{PosteriorPlots.jl,
