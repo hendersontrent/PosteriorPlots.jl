@@ -3,13 +3,6 @@ using Test
 using Turing, Distributions, RDatasets, MCMCChains, Plots, StatsPlots, Random
 using MLDataUtils: shuffleobs, splitobs, rescale!
 
-import Logging
-
-# Silence all warnings
-
-level = Logging.min_enabled_level(Logging.current_logger())
-Logging.disable_logging(Logging.Warn)
-
 Random.seed!(0)
 Turing.setprogress!(false)
 
@@ -64,13 +57,13 @@ Turing.setprogress!(false)
     #------------------------------
     
     p =  plot_posterior_intervals(chain)
-    @test p isa Plots.GRBackend()
+    @test p isa Plots.Plot
 
     p1 = plot(plot_posterior_hist(chain, true)...)
-    @test p1 isa Plots.GRBackend()
+    @test p1 isa Plots.Plot
 
     p2 = plot(plot_posterior_density(chain, true)...)
-    @test p2 isa Plots.GRBackend()
+    @test p2 isa Plots.Plot
 
     #p3 =  plot_density_check(posterior)
     #@test isa(p3, Plot)
@@ -81,7 +74,3 @@ Turing.setprogress!(false)
     #p5 =  plot_ecdf_check(posterior)
     #@test isa(p5, Plot)
 end
-
-# Reset log level
-
-Logging.disable_logging(level)
