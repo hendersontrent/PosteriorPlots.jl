@@ -135,14 +135,12 @@ function plot_posterior_intervals(model, args...; kwargs...)
     #------------ Draw the plot -----------------
 
     gr() # gr backend for graphics
-    mycolor = theme_palette(:auto).colors.colors[1]
 
     myPlot = plot(centre, variable, xerror = (centre .- lower, upper .- centre), st = :scatter,
                 title = "Posterior medians w/ 95% credible intervals",
                 xlabel = "Value",
                 ylabel = "Parameter",
                 legend = false,
-                marker = stroke(mycolor, mycolor),
                 markersize = 5,
                 size = (600, 600))
 
