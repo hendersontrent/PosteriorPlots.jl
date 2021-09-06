@@ -69,11 +69,13 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
     # y vector
 
-    y = y/sum(y)
+    y1 = y/sum(y)
 
     # yrep array
 
-
+    m = median(yrep)
+    lowerquantile = quantile(yrep, 0.025)
+    upperquantile = quantile(yrep, 0.975)
 
     #----------
     # Draw plot
@@ -83,15 +85,16 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
         # Draw plot
 
-        myPlot = plot(y, seriestype = :barbins, fillalpha = 0.5, 
+        myPlot = plot(x = y, y = y1, seriestype = :barbins, fillalpha = 0.5, 
                      xlabel = "Value", ylabel = "Proportion of Values", 
-                     label = "y", yerror = (lower, upper),
-                     color = mycolor, title = "Posterior Predictive Check", 
+                     label = "y", color = actualcolour, 
+                     title = "Posterior Predictive Check", 
                      size = (600, 600), legend = plot_legend)
 
         # Add draw mean
 
-        plot!()
+        plot!(x = y, y = m, seriestype = :scatter, color = drawscolour,
+              yerror = (lower, upper), label = "yrep", legend = plot_legend)
 
     else 
         # Plot posterior draws
