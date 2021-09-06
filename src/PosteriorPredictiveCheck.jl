@@ -46,6 +46,15 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
 
+    # Check if yrep matrix is all integers or numerics 
+    # to infer discrete/continuous model for plot
+
+    if all(isa.(yrep, Integer)) && all(isa.(y, Integer))
+        plotType = "discrete"
+    else
+        plotType = "continuous"
+    end
+
     # Wrangle from wide to long
 
     if isa(yrep, Array)
@@ -54,29 +63,60 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
         tmp = yrep
     end
 
-    # Plot posterior draws
+    #-----------------------
+    # Convert to proportions
+    #-----------------------
 
-    for n in 1:nrows
+    # y vector
 
-        tmp2 = DataFrame(tmp[n, :])
-        tmp2 = stack(tmp2, 1:length2)
+    y = y/sum(y)
 
-        # Add iteration to the plot
+    # yrep array
 
-        if n == nrows
-            plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "yrep",
-            seriestype = :density, color = drawscolour, size = (400, 400))
-        else
-            plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "",
-            seriestype = :density, color = drawscolour, size = (400, 400))
+    
+
+    #----------
+    # Draw plot
+    #----------
+
+    if plotType == "discrete"
+
+        # Draw plot
+
+        myPlot = plot(y, seriestype = :histogram, fillalpha = 0.5, 
+                     xlabel = "Value", ylabel = "Proportion of Values (%)", label = "y",
+                     color = mycolor, title = "Posterior Predictive Check", 
+                     size = (800, 800), legend = plot_legend)
+
+        # Add draw bars
+
+
+
+    else 
+        # Plot posterior draws
+
+        for n in 1:nrows
+
+            tmp2 = DataFrame(tmp[n, :])
+            tmp2 = stack(tmp2, 1:length2)
+
+            # Add iteration to the plot
+
+            if n == nrows
+                plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "yrep",
+                seriestype = :density, color = drawscolour, size = (400, 400))
+            else
+                plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "",
+                seriestype = :density, color = drawscolour, size = (400, 400))
+            end
         end
+
+        # Plot actual data
+
+        plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
+            seriestype = :density, color = actualcolour, legend = plot_legend,
+            title = "Posterior Predictive Check", linewidth = 2)
     end
-
-    # Plot actual data
-
-    plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
-        seriestype = :density, color = actualcolour, legend = plot_legend,
-        title = "Posterior Predictive Check", linewidth = 2)
 
     return myPlot
 end
