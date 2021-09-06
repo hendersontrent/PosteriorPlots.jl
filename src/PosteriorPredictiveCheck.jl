@@ -73,7 +73,7 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
     # yrep array
 
-    
+
 
     #----------
     # Draw plot
@@ -83,14 +83,15 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
         # Draw plot
 
-        myPlot = plot(y, seriestype = :histogram, fillalpha = 0.5, 
-                     xlabel = "Value", ylabel = "Proportion of Values (%)", label = "y",
+        myPlot = plot(y, seriestype = :barbins, fillalpha = 0.5, 
+                     xlabel = "Value", ylabel = "Proportion of Values", 
+                     label = "y", yerror = (lower, upper),
                      color = mycolor, title = "Posterior Predictive Check", 
-                     size = (800, 800), legend = plot_legend)
+                     size = (600, 600), legend = plot_legend)
 
-        # Add draw bars
+        # Add draw mean
 
-
+        plot!()
 
     else 
         # Plot posterior draws
