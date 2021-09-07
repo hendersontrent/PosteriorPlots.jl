@@ -27,7 +27,7 @@ R has excellent packages for the plotting and analysis of Bayesian models fit in
 
 ## Future work
 
-Currently, package functionality only works for models with continuous response variables (and therefore probability density functions). Work in the near future will add functionality to handle discrete response variables and their probability mass function requirements. In addition, user-supplied quantiles for credible intervals will also be made available.
+Currently, package functionality only supports 95% credible intervals. User-supplied quantiles for credible intervals will be made available soon.
 
 ## Citation instructions
 
