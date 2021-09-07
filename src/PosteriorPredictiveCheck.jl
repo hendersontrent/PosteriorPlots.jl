@@ -41,10 +41,19 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
-    drawscolour = cgrad(:blues)[1]
-    actualcolour = cgrad(:blues)[2]
+    actualcolour = cgrad(:blues)[1]
+    drawscolour = cgrad(:blues)[2]
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
+
+    # Check if yrep matrix is all integers or numerics 
+    # to infer discrete/continuous model for plot
+
+    if all(isa.(yrep, Integer)) && all(isa.(y, Integer))
+        plotType = "discrete"
+    else
+        plotType = "continuous"
+    end
 
     # Wrangle from wide to long
 
@@ -54,29 +63,77 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
         tmp = yrep
     end
 
-    # Plot posterior draws
+    #----------
+    # Draw plot
+    #----------
 
-    for n in 1:nrows
+    if plotType == "discrete"
 
-        tmp2 = DataFrame(tmp[n, :])
-        tmp2 = stack(tmp2, 1:length2)
+        #-----------------------
+        # Convert to proportions
+        #-----------------------
 
-        # Add iteration to the plot
+        # y vector
 
-        if n == nrows
-            plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "yrep",
-            seriestype = :density, color = drawscolour, size = (400, 400))
-        else
-            plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "",
-            seriestype = :density, color = drawscolour, size = (400, 400))
+        a = countmap(y)
+        b = DataFrame(hcat([[key, val] for (key, val) in a]...)')
+        b = rename(b, :x1 => :value)
+        b = rename(b, :x2 => :tally)
+        b.props = b.tally / sum(b.tally)
+
+        # yrep array - compute proportions for each simulated draw, median and intervals
+
+        tmp.iteration = rownumber.(eachrow(tmp)) # Add iteration IDs
+        tmp = stack(tmp, 1:size(tmp,2)-1)
+        tmp = combine(groupby(tmp, [:iteration, :value]), nrow => :count)
+
+        tmp = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
+
+        tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, 0.025)) => :lower, :props => (x -> quantile(x, 0.975)) => :upper)
+
+        tmp.lower_margin = tmp.med - tmp.lower
+        tmp.upper_margin = tmp.upper - tmp.med
+
+        # Draw plot
+
+        myPlot = plot(b[:,1], b[:,3], seriestype = :bar, fillalpha = 0.8, 
+                     xlabel = "Value", ylabel = "Proportion", 
+                     label = "y", fill = actualcolour, 
+                     title = "Posterior Predictive Check", 
+                     size = (600, 600), legend = plot_legend)
+
+        # Add draw median and 95% credible intervals
+
+        plot!(tmp[:,1], tmp[:,2], seriestype = :scatter, color = drawscolour,
+              yerror = (tmp[:,5], tmp[:,6]), 
+              label = "yrep", legend = plot_legend,
+              markerstrokecolor = drawscolour, markersize = 5)
+
+    else 
+        # Plot posterior draws
+
+        for n in 1:nrows
+
+            tmp2 = DataFrame(tmp[n, :])
+            tmp2 = stack(tmp2, 1:length2)
+
+            # Add iteration to the plot
+
+            if n == nrows
+                plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "yrep",
+                seriestype = :density, color = drawscolour, size = (400, 400))
+            else
+                plot!(tmp2[!, :value], linealpha = 0.4, xlabel = "", ylabel = "", label = "",
+                seriestype = :density, color = drawscolour, size = (400, 400))
+            end
         end
+
+        # Plot actual data
+
+        plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
+            seriestype = :density, color = actualcolour, legend = plot_legend,
+            title = "Posterior Predictive Check", linewidth = 2)
     end
-
-    # Plot actual data
-
-    plot!(y, linealpha = 1, xlabel = "Value", ylabel = "Density", label = "y",
-        seriestype = :density, color = actualcolour, legend = plot_legend,
-        title = "Posterior Predictive Check", linewidth = 2)
 
     return myPlot
 end
