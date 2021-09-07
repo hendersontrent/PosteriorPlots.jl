@@ -75,16 +75,12 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     b = rename(b, :x2 => :tally)
     b.props = b.tally / sum(b.tally)
 
-    # yrep array - compute proportions for each simulated draw
+    # yrep array - compute proportions for each simulated draw and median + intervals
 
     tmp.iteration = rownumber.(eachrow(tmp)) # Add iteration IDs
-
-    yrep_counts = DataFrame(value, count)
-
-    for row in eachrow(yrep)
-        tmp = yrep[row, !]
-        yrep_counts = combine(groupby(yrep, :A), :B => length ∘ unique => :n_distint_B)
-    end
+    tmp = stack(tmp, 1:size(tmp,2)-1)
+    tmp = combine(groupby(tmp, [:iteration, :value]), nrow => :count)
+    tmp1 = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
 
     # yrep array - compute 95% credible interval over proportions by unique value
 
