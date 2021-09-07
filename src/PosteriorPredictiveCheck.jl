@@ -91,8 +91,8 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
         tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, 0.025)) => :lower, :props => (x -> quantile(x, 0.975)) => :upper)
 
-        tmp1.lower_margin = tmp1.med - tmp1.lower
-        tmp1.upper_margin = tmp1.upper - tmp1.med
+        tmp.lower_margin = tmp.med - tmp.lower
+        tmp.upper_margin = tmp.upper - tmp.med
 
         # Draw plot
 
