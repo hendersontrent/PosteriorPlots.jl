@@ -63,42 +63,39 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
         tmp = yrep
     end
 
-    #-----------------------
-    # Convert to proportions
-    #-----------------------
-
-    # y vector
-
-    a = countmap(y)
-    b = DataFrame(hcat([[key, val] for (key, val) in a]...)')
-    b = rename(b, :x1 => :value)
-    b = rename(b, :x2 => :tally)
-    b.props = b.tally / sum(b.tally)
-
-    # yrep array - compute proportions for each simulated draw and median + intervals
-
-    tmp.iteration = rownumber.(eachrow(tmp)) # Add iteration IDs
-    tmp = stack(tmp, 1:size(tmp,2)-1)
-    tmp = combine(groupby(tmp, [:iteration, :value]), nrow => :count)
-    tmp1 = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
-
-    # yrep array - compute 95% credible interval over proportions by unique value
-
-    m = median(yrep[!, col])
-    lowerquantile = quantile(yrep[!, col], 0.025)
-    upperquantile = quantile(yrep[!, col], 0.975)
-
     #----------
     # Draw plot
     #----------
 
     if plotType == "discrete"
 
+        #-----------------------
+        # Convert to proportions
+        #-----------------------
+
+        # y vector
+
+        a = countmap(y)
+        b = DataFrame(hcat([[key, val] for (key, val) in a]...)')
+        b = rename(b, :x1 => :value)
+        b = rename(b, :x2 => :tally)
+        b.props = b.tally / sum(b.tally)
+
+        # yrep array - compute proportions for each simulated draw, median and intervals
+
+        tmp.iteration = rownumber.(eachrow(tmp)) # Add iteration IDs
+        tmp = stack(tmp, 1:size(tmp,2)-1)
+        tmp = combine(groupby(tmp, [:iteration, :value]), nrow => :count)
+
+        tmp = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
+
+        tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, 0.025)) => :lower, :props => (x -> quantile(x, 0.975)) => :upper)
+
         # Draw plot
 
-        myPlot = plot(b[:,1], b[:,3], seriestype = :barbins, fillalpha = 0.8, 
+        myPlot = plot(b[:,1], b[:,3], seriestype = :bar, fillalpha = 0.8, 
                      xlabel = "Value", ylabel = "Proportion of Values", 
-                     label = "y", color = actualcolour, 
+                     label = "y", fill = drawscolour, 
                      title = "Posterior Predictive Check", 
                      size = (600, 600), legend = plot_legend)
 
