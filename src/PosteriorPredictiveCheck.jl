@@ -41,8 +41,8 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     #-------- Draw plot --------
 
     gr() # gr backend for graphics
-    drawscolour = cgrad(:blues)[1]
-    actualcolour = cgrad(:blues)[2]
+    actualcolour = cgrad(:blues)[1]
+    drawscolour = cgrad(:blues)[2]
     Random.seed!(123) # Fix seed for reproducibility
     myPlot = plot()
 
@@ -91,20 +91,23 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
         tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, 0.025)) => :lower, :props => (x -> quantile(x, 0.975)) => :upper)
 
+        tmp1.lower_margin = tmp1.med - tmp1.lower
+        tmp1.upper_margin = tmp1.upper - tmp1.med
+
         # Draw plot
 
         myPlot = plot(b[:,1], b[:,3], seriestype = :bar, fillalpha = 0.8, 
-                     xlabel = "Value", ylabel = "Proportion of Values", 
-                     label = "y", fill = drawscolour, 
+                     xlabel = "Value", ylabel = "Proportion", 
+                     label = "y", fill = actualcolour, 
                      title = "Posterior Predictive Check", 
                      size = (600, 600), legend = plot_legend)
 
         # Add draw median and 95% credible intervals
 
-        plot!(meds[:,1], meds[:,2], seriestype = :scatter, color = drawscolour,
-              yerror = (lowerquantile, upperquantile), 
+        plot!(tmp[:,1], tmp[:,2], seriestype = :scatter, color = drawscolour,
+              yerror = (tmp[:,5], tmp[:,6]), 
               label = "yrep", legend = plot_legend,
-              markerstrokecolor = drawscolour)
+              markerstrokecolor = drawscolour, markersize = 5)
 
     else 
         # Plot posterior draws
