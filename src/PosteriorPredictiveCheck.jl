@@ -75,8 +75,9 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
     b = rename(b, :x2 => :tally)
     b.props = b.tally / sum(b.tally)
 
-
     # yrep array - compute proportions for each simulated draw
+
+    tmp.iteration = rownumber.(eachrow(tmp)) # Add iteration IDs
 
     yrep_counts = DataFrame(value, count)
 
@@ -99,15 +100,15 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
         # Draw plot
 
-        myPlot = plot(x = y, y = y1, seriestype = :barbins, fillalpha = 0.5, 
+        myPlot = plot(b[:,1], b[:,3], seriestype = :barbins, fillalpha = 0.8, 
                      xlabel = "Value", ylabel = "Proportion of Values", 
                      label = "y", color = actualcolour, 
                      title = "Posterior Predictive Check", 
                      size = (600, 600), legend = plot_legend)
 
-        # Add draw mean
+        # Add draw median and 95% credible intervals
 
-        plot!(x = y, y = m, seriestype = :scatter, color = drawscolour,
+        plot!(meds[:,1], meds[:,2], seriestype = :scatter, color = drawscolour,
               yerror = (lowerquantile, upperquantile), 
               label = "yrep", legend = plot_legend,
               markerstrokecolor = drawscolour)
