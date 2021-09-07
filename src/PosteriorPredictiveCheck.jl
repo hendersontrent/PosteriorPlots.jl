@@ -69,13 +69,27 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
     # y vector
 
-    y1 = y/sum(y)
+    a = countmap(y)
+    b = DataFrame(hcat([[key, val] for (key, val) in a]...)')
+    b = rename(b, :x1 => :value)
+    b = rename(b, :x2 => :tally)
+    b.props = b.tally / sum(b.tally)
 
-    # yrep array
 
-    m = median(yrep)
-    lowerquantile = quantile(yrep, 0.025)
-    upperquantile = quantile(yrep, 0.975)
+    # yrep array - compute proportions for each simulated draw
+
+    yrep_counts = DataFrame(value, count)
+
+    for row in eachrow(yrep)
+        tmp = yrep[row, !]
+        yrep_counts = combine(groupby(yrep, :A), :B => length ∘ unique => :n_distint_B)
+    end
+
+    # yrep array - compute 95% credible interval over proportions by unique value
+
+    m = median(yrep[!, col])
+    lowerquantile = quantile(yrep[!, col], 0.025)
+    upperquantile = quantile(yrep[!, col], 0.975)
 
     #----------
     # Draw plot
@@ -94,7 +108,9 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
         # Add draw mean
 
         plot!(x = y, y = m, seriestype = :scatter, color = drawscolour,
-              yerror = (lower, upper), label = "yrep", legend = plot_legend)
+              yerror = (lowerquantile, upperquantile), 
+              label = "yrep", legend = plot_legend,
+              markerstrokecolor = drawscolour)
 
     else 
         # Plot posterior draws
