@@ -85,6 +85,6 @@ end
 function generatequantile(x::Float64)
 
     upperbound = round(((x + 1) / 2), digits = 3) # Solve for upper bound
-    lowerbound = round(upperbound - x, digits = 3) # Substitute in to get lower bound
+    lowerbound = round(upperbound - x, digits = 3) # Substitute in for lower bound
     return lowerbound, upperbound
 end

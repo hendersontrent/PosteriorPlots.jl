@@ -91,10 +91,9 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
 
         # Extract values
         
-        finalPost = DataFrame(MCMCChains.quantile(model, [quantileRange[1], 0.50, quantileRange[2]]))
-
-        finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", 
-                            "50.0%" => "centre", "97.5%" => "upper")
+        finalPost = DataFrame(MCMCChains.quantile(model; [quantileRange[1], 0.50, quantileRange[2]]))
+        my_names = ["parameters", "lower", "centre", "upper"]
+        finalPost = rename!(finalPost, my_names)
 
         # Standardise outputs
 
