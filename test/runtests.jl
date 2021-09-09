@@ -56,21 +56,21 @@ Turing.setprogress!(false)
     # Run core PosteriorPlots tests
     #------------------------------
     
-    p =  plot_posterior_intervals(chain)
+    p =  plot_posterior_intervals(chain, 0.95)
     @test p isa Plots.Plot
 
     p1 = plot(plot_posterior_hist(chain, true)...)
     @test p1 isa Plots.Plot
 
-    p2 = plot(plot_posterior_density(chain, true)...)
+    p2 = plot(plot_posterior_density(chain, 0.95, true)...)
     @test p2 isa Plots.Plot
 
-    #p3 =  plot_density_check(posterior)
+    #p3 =  plot_posterior_check()
     #@test isa(p3, Plot)
 
-    #p4 =  plot_hist_check(posterior)
+    #p4 =  plot_hist_check()
     #@test isa(p4, Plot)
 
-    #p5 =  plot_ecdf_check(posterior)
+    #p5 =  plot_ecdf_check()
     #@test isa(p5, Plot)
 end

@@ -1,12 +1,12 @@
 """
 
-    plot_density_check(y, yrep, plot_legend, args...; kwargs...)
+    plot_posterior_check(y, yrep, plot_legend, args...; kwargs...)
 
 Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_density_check(y, yrep, plot_legend)
+plot_posterior_check(y, yrep, plot_legend)
 ```
 
 Details:
@@ -19,7 +19,7 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
 
     # Check object sizes
 
