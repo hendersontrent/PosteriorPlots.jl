@@ -1,7 +1,7 @@
 name = "PosteriorPlots"
 uuid = "196f2941-2d58-45ba-9f13-43a2532b2fa8"
 authors = ["Trent Henderson <then6675@uni.sydney.edu.au>"]
-version = "0.1.7"
+version = "0.1.8"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
