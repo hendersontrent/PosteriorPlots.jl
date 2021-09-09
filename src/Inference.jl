@@ -125,7 +125,7 @@ function plot_posterior_intervals(model, prob, args...; kwargs...)
 
         # Extract values
         
-        finalPost = DataFrame(MCMCChains.quantile(model[; q = [quantileRange[1], 0.50, quantileRange[2]]]))
+        finalPost = DataFrame(MCMCChains.quantile(model, [quantileRange[1], 0.50, quantileRange[2]]))
 
         finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", 
                             "50.0%" => "centre", "97.5%" => "upper")
