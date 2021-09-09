@@ -12,7 +12,7 @@ plot_posterior_intervals(model, prob)
 
 Arguments:
 
-- `model` : The model of class `Chains`, `Array`, or `DataFrame` to draw inferences from.
+- `model` : The model to draw inferences from.
 - `prob` : The probability of the credible interval to calculate.
 """
 function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
@@ -41,25 +41,9 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
         ncols = size(thefloats, 2)
         stackedfloats = stack(thefloats, 1:ncols)
 
-        # Median
+        # Median and credible intervals
 
-        centrefloats = combine(groupby(stackedfloats, :variable), :value => median)
-        centrefloats = rename(centrefloats, :value_median => :centre)
-
-        # Lower quantile
-
-        lowerfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, quantileRange[1]))
-        lowerfloats = rename(lowerfloats, :value_function => :lower)
-
-        # Upper quantile
-
-        upperfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, quantileRange[2]))
-        upperfloats = rename(upperfloats, :value_function => :upper)
-
-        # Join together
-
-        finalfloats = leftjoin(centrefloats, lowerfloats, on = :variable)
-        finalfloats = leftjoin(finalfloats, upperfloats, on = :variable)
+        finalfloats = combine(groupby(stackedfloats, :variable), :value => median => :centre, :value => t -> quantile(t, quantileRange[1]) => :lower, :value => t -> quantile(t, quantileRange[2]) => :upper)
 
         #-------- Wrangle arrays --------
 
@@ -83,25 +67,9 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
             ncols_res_arrays = size(parsedarraysCols, 2)
             stackedarraysfloats = stack(parsedarraysCols, 1:ncols_res_arrays)
 
-            # Median
+            # Median and credible intervals
 
-            centrefloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median)
-            centrefloatsarrays = rename(centrefloatsarrays, :value_median => :centre)
-
-            # Lower quantile
-
-            lowerfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => t -> quantile(t, quantileRange[1]))
-            lowerfloatsarrays = rename(lowerfloatsarrays, :value_function => :lower)
-
-            # Upper quantile
-
-            upperfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => t -> quantile(t, quantileRange[2]))
-            upperfloatsarrays = rename(upperfloatsarrays, :value_function => :upper)
-
-            # Join together
-
-            finalfloatsarrays = leftjoin(centrefloatsarrays, lowerfloatsarrays, on = :variable)
-            finalfloatsarrays = leftjoin(finalfloatsarrays, upperfloatsarrays, on = :variable)
+            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median => :centre, :value => t -> quantile(t, quantileRange[1]) => :lower, :value => t -> quantile(t, quantileRange[2]) => :upper)
         end
 
         #-------- Final outputs ---------
@@ -173,7 +141,7 @@ Note that to get the function to work, you may need to call it using a splat, su
 
 Arguments:
 
-- `model` : The model of class `Chains`, `Array`, or `DataFrame` to draw inferences from.
+- `model` : The model to draw inferences from.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
 function plot_posterior_hist(model, plot_legend::Bool, args...; kwargs...)
@@ -250,7 +218,7 @@ Note that to get the function to work, you may need to call it using a splat, su
 
 Arguments:
 
-- `model` : The model of class `Chains`, `Array`, or `DataFrame` to draw inferences from.
+- `model` : The model to draw inferences from.
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
