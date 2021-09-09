@@ -73,7 +73,7 @@ Turing.setprogress!(false)
     
     yrep = [[1,0,0,0,0] [1,1,1,1,0] [1,1,0,1,0] [0,0,0,1,0] [1,1,1,1,1] [1,1,1,1,1] [1,1,1,1,1] [0,0,0,0,0] [1,1,0,1,1] [0,0,0,0,0]]
 
-    p3 =  plot_posterior_check(y, 0.95, true, yrep)
+    p3 =  plot_posterior_check(y, yrep)
     @test isa(p3, Plot)
 
     #p4 =  plot_hist_check()
