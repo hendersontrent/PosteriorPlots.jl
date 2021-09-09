@@ -35,15 +35,15 @@ end
 
 #----------- Density --------------
 
-function denshelper(data::DataFrame, p::Symbol, add_legend::Bool)
+function denshelper(data::DataFrame, p::Symbol, lower::Float64, upper::Float64, add_legend::Bool)
 
     # Compute median
 
     thevec = convert(Vector, data[!, p])
     m = median(thevec)
     y = kde(thevec)
-    lowerquantile = quantile(thevec, 0.025)
-    upperquantile = quantile(thevec, 0.975)
+    lowerquantile = quantile(thevec, lower)
+    upperquantile = quantile(thevec, upper)
 
     # Set up graphics helpers
 
@@ -56,7 +56,7 @@ function denshelper(data::DataFrame, p::Symbol, add_legend::Bool)
          seriestype = :density, color = mycolor, size = (800, 800))
 
     plot!(range(lowerquantile, stop = upperquantile, length = 100), thevec -> pdf(y,thevec), 
-           color =  mycolor, fill = (0, 0.4, mycolor), label = "95% CI", legend = add_legend)
+           color =  mycolor, fill = (0, 0.4, mycolor), label = "Credible Interval", legend = add_legend)
 
     plot!([m], seriestype = "vline", color = mycolor, label = "Median", linewidth = 2.5)
 

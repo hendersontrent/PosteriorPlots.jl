@@ -23,10 +23,9 @@ function plot_posterior_intervals(model, prob, args...; kwargs...)
 
     # Check prob argument
 
-    isa(prob, Float64) || error("`prob` should be a Float64 value between 0 and 1.")
-    prob <= 0 || error("`prob` should be a Float64 value between 0 and 1.")
-    prob >= 1 || error("`prob` should be a Float64 value between 0 and 1.")
-
+    isa(prob, Float64) || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
     quantileRange = generatequantile(prob)
 
     # Turn model objects into DataFrames
@@ -237,13 +236,13 @@ end
 
 """
 
-    plot_posterior_density(model, plot_legend, args...; kwargs...)
+    plot_posterior_density(model, prob, plot_legend, args...; kwargs...)
 
 Draw a density plot of sampled parameters for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_density(model, plot_legend)
+plot_posterior_density(model, prob, plot_legend)
 ```
 
 Details:
@@ -253,9 +252,17 @@ Note that to get the function to work, you may need to call it using a splat, su
 Arguments:
 
 - `model` : The model of class `Chains`, `Array`, or `DataFrame` to draw inferences from.
+- `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_density(model, prob, plot_legend::Bool, args...; kwargs...)
+
+    # Check prob argument
+
+    isa(prob, Float64) || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
+    quantileRange = generatequantile(prob)
 
     if isa(model, Array)
 
@@ -305,7 +312,7 @@ function plot_posterior_density(model, plot_legend::Bool, args...; kwargs...)
 
     # Draw plot for each parameter
 
-    myPlotArray = [denshelper(posteriorDF, p, plot_legend) for p in params]
+    myPlotArray = [denshelper(posteriorDF, p, quantileRange[1], quantileRange[2], plot_legend) for p in params]
 
     return myPlotArray
 end
