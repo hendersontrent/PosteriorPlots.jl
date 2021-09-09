@@ -77,3 +77,14 @@ function expandcol(df::DataFrame, thecol)
     subdf = DataFrame([getindex.(df[:, thecol], i) for i ∈ 1:lastindex(df[1, thecol])], expandnames)
     return hcat(df, subdf)
 end
+
+#----------- Quantile maker -------
+
+# Helper function to produce 2 numbers that bound a quantile for a user-specified probability
+
+function generatequantile(x::Float64)
+
+    upperbound = round(((x + 1) / 2), digits = 3) # Solve for upper bound
+    lowerbound = round(upperbound - x, digits = 3) # Substitute in to get lower bound
+    return lowerbound, upperbound
+end
