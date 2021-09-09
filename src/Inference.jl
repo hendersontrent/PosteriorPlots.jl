@@ -15,7 +15,7 @@ Arguments:
 - `model` : The model of class `Chains`, `Array`, or `DataFrame` to draw inferences from.
 - `prob` : The probability of the credible interval to calculate.
 """
-function plot_posterior_intervals(model, prob, args...; kwargs...)
+function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
 
     # Fix seed for reproducibility
 
@@ -23,7 +23,6 @@ function plot_posterior_intervals(model, prob, args...; kwargs...)
 
     # Check prob argument
 
-    isa(prob, Float64) || error("`prob` should be a single Float64 value between 0 and 1.")
     prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
     prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
     quantileRange = generatequantile(prob)
@@ -255,11 +254,10 @@ Arguments:
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model, prob, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_density(model, prob::Float64, plot_legend::Bool, args...; kwargs...)
 
     # Check prob argument
 
-    isa(prob, Float64) || error("`prob` should be a single Float64 value between 0 and 1.")
     prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
     prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
     quantileRange = generatequantile(prob)

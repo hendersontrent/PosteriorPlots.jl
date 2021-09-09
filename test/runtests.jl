@@ -50,7 +50,7 @@ Turing.setprogress!(false)
     end
 
     model = linear_regression(train, train_target)
-    chain = sample(model, NUTS(0.65), 3_000);
+    chain = sample(model, NUTS(0.65), 3_000)
 
     #------------------------------
     # Run core PosteriorPlots tests
