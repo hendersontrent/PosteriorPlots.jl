@@ -15,7 +15,7 @@ Arguments:
 - `model` : The model to draw inferences from.
 - `prob` : The probability of the credible interval to calculate.
 """
-function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
+function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs...)
 
     # Fix seed for reproducibility
 
@@ -23,8 +23,8 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
 
     # Check prob argument
 
-    prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
-    prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    prob < 1 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
     quantileRange = generatequantile(prob)
 
     # Turn model objects into DataFrames
@@ -43,7 +43,7 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
 
         # Median and credible intervals
 
-        finalfloats = combine(groupby(stackedfloats, :variable), :value => median => :centre, :value => t -> quantile(t, quantileRange[1]) => :lower, :value => t -> quantile(t, quantileRange[2]) => :upper)
+        finalfloats = combine(groupby(stackedfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
 
         #-------- Wrangle arrays --------
 
@@ -69,7 +69,7 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
 
             # Median and credible intervals
 
-            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median => :centre, :value => t -> quantile(t, quantileRange[1]) => :lower, :value => t -> quantile(t, quantileRange[2]) => :upper)
+            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
         end
 
         #-------- Final outputs ---------
@@ -91,7 +91,7 @@ function plot_posterior_intervals(model, prob::Float64, args...; kwargs...)
 
         # Extract values
         
-        finalPost = DataFrame(MCMCChains.quantile(model; [quantileRange[1], 0.50, quantileRange[2]]))
+        finalPost = DataFrame(MCMCChains.quantile(model; q = [quantileRange[1], 0.50, quantileRange[2]]))
         my_names = ["parameters", "lower", "centre", "upper"]
         finalPost = rename!(finalPost, my_names)
 
@@ -143,7 +143,7 @@ Arguments:
 - `model` : The model to draw inferences from.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_hist(model, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_hist(model, plot_legend::Bool = true, args...; kwargs...)
 
     if isa(model, Array)
 
@@ -221,12 +221,12 @@ Arguments:
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model, prob::Float64, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_density(model, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
 
     # Check prob argument
 
-    prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
-    prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    prob < 1 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
     quantileRange = generatequantile(prob)
 
     if isa(model, Array)

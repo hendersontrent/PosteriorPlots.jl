@@ -20,12 +20,12 @@ Arguments:
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_check(y::Array, yrep, prob::Float64, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_check(y::Array, yrep, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
 
     # Check prob argument
 
-    prob <= 0 || error("`prob` should be a single Float64 value between 0 and 1.")
-    prob >= 1 || error("`prob` should be a single Float64 value between 0 and 1.")
+    prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    prob < 1 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
     quantileRange = generatequantile(prob)
 
     # Check object sizes
@@ -166,7 +166,7 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_hist_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+function plot_hist_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
 
     # Check object sizes
 
@@ -235,7 +235,7 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+function plot_ecdf_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
 
     # Check object sizes
 
