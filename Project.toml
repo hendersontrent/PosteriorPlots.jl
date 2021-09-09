@@ -4,6 +4,7 @@ authors = ["Trent Henderson <then6675@uni.sydney.edu.au>"]
 version = "0.1.8"
 
 [deps]
+Bijectors = "76274a88-744f-5084-9051-94815aaf08c4"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 KernelDensity = "5ab0869b-81aa-558d-bb23-cbf5423bbe9b"
 MCMCChains = "c7f686f2-ff18-58e9-bc7b-31028e88f75d"
