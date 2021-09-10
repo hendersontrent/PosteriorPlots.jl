@@ -42,4 +42,4 @@ If you use `PosteriorPlots.jl` in your work, please cite it using the following 
 
 ## Acknowledgements
 
-Many thanks to [Breandan Harris](https://github.com/brendanjohnharris) for error troubleshooting and other technical Julia advice.
+Many thanks to [Brendan Harris](https://github.com/brendanjohnharris) for error troubleshooting and other technical Julia advice.
