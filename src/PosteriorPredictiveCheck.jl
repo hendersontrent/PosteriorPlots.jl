@@ -1,12 +1,12 @@
 """
 
-    plot_density_check(y, yrep, plot_legend, args...; kwargs...)
+    plot_posterior_check(y, yrep, prob, plot_legend, args...; kwargs...)
 
 Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_density_check(y, yrep, plot_legend)
+plot_posterior_check(y, yrep, prob, plot_legend)
 ```
 
 Details:
@@ -17,9 +17,16 @@ Arguments:
 
 - `y` : The vector of response variable values.
 - `yrep` : The Draws x Values matrix of posterior predictions.
+- `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_check(y::Array, yrep, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
+
+    # Check prob argument
+
+    prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    prob < 1 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    quantileRange = generatequantile(prob)
 
     # Check object sizes
 
@@ -89,7 +96,9 @@ function plot_density_check(y::Array, yrep, plot_legend::Bool, args...; kwargs..
 
         tmp = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
 
-        tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, 0.025)) => :lower, :props => (x -> quantile(x, 0.975)) => :upper)
+        tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, quantileRange[1])) => :lower, :props => (x -> quantile(x, quantileRange[2])) => :upper)
+
+        # Get margins to extend vertically from median for yerror bars on plot
 
         tmp.lower_margin = tmp.med - tmp.lower
         tmp.upper_margin = tmp.upper - tmp.med
@@ -157,7 +166,7 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_hist_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+function plot_hist_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
 
     # Check object sizes
 
@@ -226,7 +235,7 @@ Arguments:
 - `yrep` : The Draws x Values matrix of posterior predictions.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_ecdf_check(y::Array, yrep, plot_legend::Bool, args...; kwargs...)
+function plot_ecdf_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
 
     # Check object sizes
 

@@ -1,24 +1,31 @@
 using Base: Symbol
 """
 
-    plot_posterior_intervals(model, args...; kwargs...)
+    plot_posterior_intervals(model, prob, args...; kwargs...)
 
-Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of regression models fit in `Turing.jl` and `Soss.jl`.
+Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_intervals(model)
+plot_posterior_intervals(model, prob)
 ```
 
 Arguments:
 
-- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
+- `model` : The model to draw inferences from.
+- `prob` : The probability of the credible interval to calculate.
 """
-function plot_posterior_intervals(model, args...; kwargs...)
+function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs...)
 
     # Fix seed for reproducibility
 
     Random.seed!(123)
+
+    # Check prob argument
+
+    prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    prob < 1 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    quantileRange = generatequantile(prob)
 
     # Turn model objects into DataFrames
 
@@ -34,25 +41,9 @@ function plot_posterior_intervals(model, args...; kwargs...)
         ncols = size(thefloats, 2)
         stackedfloats = stack(thefloats, 1:ncols)
 
-        # Median
+        # Median and credible intervals
 
-        centrefloats = combine(groupby(stackedfloats, :variable), :value => median)
-        centrefloats = rename(centrefloats, :value_median => :centre)
-
-        # Lower quantile
-
-        lowerfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, .025))
-        lowerfloats = rename(lowerfloats, :value_function => :lower)
-
-        # Upper quantile
-
-        upperfloats = combine(groupby(stackedfloats, :variable), :value => t -> quantile(t, .975))
-        upperfloats = rename(upperfloats, :value_function => :upper)
-
-        # Join together
-
-        finalfloats = leftjoin(centrefloats, lowerfloats, on = :variable)
-        finalfloats = leftjoin(finalfloats, upperfloats, on = :variable)
+        finalfloats = combine(groupby(stackedfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
 
         #-------- Wrangle arrays --------
 
@@ -76,25 +67,9 @@ function plot_posterior_intervals(model, args...; kwargs...)
             ncols_res_arrays = size(parsedarraysCols, 2)
             stackedarraysfloats = stack(parsedarraysCols, 1:ncols_res_arrays)
 
-            # Median
+            # Median and credible intervals
 
-            centrefloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median)
-            centrefloatsarrays = rename(centrefloatsarrays, :value_median => :centre)
-
-            # Lower quantile
-
-            lowerfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => t -> quantile(t, .025))
-            lowerfloatsarrays = rename(lowerfloatsarrays, :value_function => :lower)
-
-            # Upper quantile
-
-            upperfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => t -> quantile(t, .975))
-            upperfloatsarrays = rename(upperfloatsarrays, :value_function => :upper)
-
-            # Join together
-
-            finalfloatsarrays = leftjoin(centrefloatsarrays, lowerfloatsarrays, on = :variable)
-            finalfloatsarrays = leftjoin(finalfloatsarrays, upperfloatsarrays, on = :variable)
+            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
         end
 
         #-------- Final outputs ---------
@@ -116,10 +91,9 @@ function plot_posterior_intervals(model, args...; kwargs...)
 
         # Extract values
         
-        finalPost = DataFrame(MCMCChains.quantile(model))
-
-        finalPost = select(finalPost, "parameters" => "parameters", "2.5%" => "lower", 
-                            "50.0%" => "centre", "97.5%" => "upper")
+        finalPost = DataFrame(MCMCChains.quantile(model; q = [quantileRange[1], 0.50, quantileRange[2]]))
+        my_names = ["parameters", "lower", "centre", "upper"]
+        finalPost = rename!(finalPost, my_names)
 
         # Standardise outputs
 
@@ -137,7 +111,7 @@ function plot_posterior_intervals(model, args...; kwargs...)
     gr() # gr backend for graphics
 
     myPlot = plot(centre, variable, xerror = (centre .- lower, upper .- centre), st = :scatter,
-                title = "Posterior medians w/ 95% credible intervals",
+                title = "Posterior medians with credible intervals",
                 xlabel = "Value",
                 ylabel = "Parameter",
                 legend = false,
@@ -153,7 +127,7 @@ end
 
     plot_posterior_hist(model, plot_legend, args...; kwargs...)
 
-Draw a plot with a binned histogram of sampled parameters for easy interpretation of regression models fit in `Turing.jl` and `Soss.jl`.
+Draw a plot with a binned histogram of sampled parameters for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
@@ -166,10 +140,10 @@ Note that to get the function to work, you may need to call it using a splat, su
 
 Arguments:
 
-- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
+- `model` : The model to draw inferences from.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_hist(model, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_hist(model, plot_legend::Bool = true, args...; kwargs...)
 
     if isa(model, Array)
 
@@ -228,13 +202,13 @@ end
 
 """
 
-    plot_posterior_density(model, plot_legend, args...; kwargs...)
+    plot_posterior_density(model, prob, plot_legend, args...; kwargs...)
 
-Draw a density plot of sampled parameters for easy interpretation of regression models fit in `Turing.jl` and `Soss.jl`.
+Draw a density plot of sampled parameters for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_density(model, plot_legend)
+plot_posterior_density(model, prob, plot_legend)
 ```
 
 Details:
@@ -243,10 +217,17 @@ Note that to get the function to work, you may need to call it using a splat, su
 
 Arguments:
 
-- `model` : The `Turing.jl` or `Soss.jl` model of class `Chains` or `Array` to draw inferences from.
+- `model` : The model to draw inferences from.
+- `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model, plot_legend::Bool, args...; kwargs...)
+function plot_posterior_density(model, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
+
+    # Check prob argument
+
+    prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    prob < 1 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
+    quantileRange = generatequantile(prob)
 
     if isa(model, Array)
 
@@ -296,7 +277,7 @@ function plot_posterior_density(model, plot_legend::Bool, args...; kwargs...)
 
     # Draw plot for each parameter
 
-    myPlotArray = [denshelper(posteriorDF, p, plot_legend) for p in params]
+    myPlotArray = [denshelper(posteriorDF, p, quantileRange[1], quantileRange[2], plot_legend) for p in params]
 
     return myPlotArray
 end
