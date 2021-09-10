@@ -12,7 +12,7 @@ using Soss, Random, Distributions, SampleChainsDynamicHMC, Plots
         p = size(X, 2) # number of features
         α ~ Normal(0, 1) # intercept
         β ~ Normal(0, 1) |> iid(p) # coefficients
-        σ ~ sqrt(truncated(Normal(0, 100), 0, Inf)) # dispersion
+        σ ~ truncated(Normal(0, 100), 0, Inf) # dispersion
         η = α .+ X * β # linear predictor
         μ = η # `μ = g⁻¹(η) = η`
         y ~ For(eachindex(μ)) do j
