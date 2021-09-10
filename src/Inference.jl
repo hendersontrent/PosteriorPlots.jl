@@ -200,9 +200,13 @@ function plot_posterior_hist(model, plot_legend::Bool = true, args...; kwargs...
 
         paramsData = DataFrame(MCMCChains.summarize(model))
         params = paramsData[!, :parameters]
+
+    elseif isa(model, MultiChain)
+
+        posteriorDF = DataFrame(model)
     
     else
-        error("`model` must be an object of type `Chains` or `Array`.")
+        error("`model` must be an object of type `Chains`, `Array`, or `MultiChain`.")
     end
 
     #------------ Draw the plots ----------------
@@ -284,9 +288,13 @@ function plot_posterior_density(model, prob::Float64 = 0.95, plot_legend::Bool =
 
         paramsData = DataFrame(MCMCChains.summarize(model))
         params = paramsData[!, :parameters]
+
+    elseif isa(model, MultiChain)
+
+        posteriorDF = DataFrame(model)
     
     else
-        error("`model` must be an object of type `Chains` or `Array`.")
+        error("`model` must be an object of type `Chains`, `Array`, or `MultiChain`.")
     end
 
     #------------ Draw the plots ----------------
