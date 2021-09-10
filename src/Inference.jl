@@ -102,8 +102,26 @@ function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs..
         lower = finalPost[!, :lower]
         centre = finalPost[!, :centre]
         upper = finalPost[!, :upper]
+    
+    elseif isa(model, MultiChain)
+
+        # Wrangle into tidy format
+
+        finalPost = DataFrame(model)
+        ncols = size(finalPost, 2)
+        finalPost = stack(finalPost, 1:ncols)
+
+        finalPost = combine(groupby(finalPost, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+
+        # Standardise outputs
+
+        variable = finalPost[!, :parameters]
+        variable = string.(variable)
+        lower = finalPost[!, :lower]
+        centre = finalPost[!, :centre]
+        upper = finalPost[!, :upper]
     else
-        error("`model` must be an object of type `Chains` or `Array`.")
+        error("`model` must be an object of type `Chains`, `Array`, or `MultiChain`.")
     end
 
     #------------ Draw the plot -----------------
@@ -182,9 +200,13 @@ function plot_posterior_hist(model, plot_legend::Bool = true, args...; kwargs...
 
         paramsData = DataFrame(MCMCChains.summarize(model))
         params = paramsData[!, :parameters]
+
+    elseif isa(model, MultiChain)
+
+        posteriorDF = DataFrame(model)
     
     else
-        error("`model` must be an object of type `Chains` or `Array`.")
+        error("`model` must be an object of type `Chains`, `Array`, or `MultiChain`.")
     end
 
     #------------ Draw the plots ----------------
@@ -266,9 +288,13 @@ function plot_posterior_density(model, prob::Float64 = 0.95, plot_legend::Bool =
 
         paramsData = DataFrame(MCMCChains.summarize(model))
         params = paramsData[!, :parameters]
+
+    elseif isa(model, MultiChain)
+
+        posteriorDF = DataFrame(model)
     
     else
-        error("`model` must be an object of type `Chains` or `Array`.")
+        error("`model` must be an object of type `Chains`, `Array`, or `MultiChain`.")
     end
 
     #------------ Draw the plots ----------------
