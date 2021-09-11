@@ -5,6 +5,15 @@
 
 Graphical tools for Bayesian inference and posterior predictive checks.
 
+## Installation
+
+You can install `PosteriorPlots.jl` from the Julia Registry via:
+
+```
+using Pkg
+Pkg.add("PosteriorPlots")
+```
+
 ## Motivation
 
 R has excellent packages for the plotting and analysis of Bayesian models fit in probabilistic programming languages such as [`Stan`](https://mc-stan.org). Examples of these packages include [`bayesplot`](http://mc-stan.org/bayesplot/) and [`tidybayes`](http://mjskay.github.io/tidybayes/). The functionality afforded by these packages greatly enables researchers to automatically obtain informative and clean graphical summaries of various posterior properties of interest. While packages such as [`MCMCChains.jl`](https://turinglang.github.io/MCMCChains.jl/dev/), [`ArviZ.jl`](https://arviz-devs.github.io/ArviZ.jl/stable/), and others exist in Julia for models built in the [PPLs](https://en.wikipedia.org/wiki/Probabilistic_programming) [`Turing.jl`](https://turing.ml/stable/) and [`Soss.jl`](https://github.com/cscherrer/Soss.jl), the clean, inference-ready output aesthetics produced by `bayesplot` are not easily available by default. `PosteriorPlots.jl` seeks to bridge this gap. Since `PosteriorPlots.jl` functions can take standard object types such as Arrays as inputs (as well as special object types such as Chains), it can flexibly accommodate models from `Stan` and other PPLs.
