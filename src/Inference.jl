@@ -115,6 +115,7 @@ function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs..
 
         # Standardise outputs
 
+        finalPost = rename(finalPost, :variable => :parameters)
         variable = finalPost[!, :parameters]
         variable = string.(variable)
         lower = finalPost[!, :lower]
