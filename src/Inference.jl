@@ -146,7 +146,6 @@ function plot_posterior_intervals(model, point_est::String = "median", prob::Flo
 
     gr() # gr backend for graphics
     centrecolour = cgrad(:blues)[2]
-    barcolour = cgrad(:blues)[1]
 
     myPlot = plot(centre, variable, xerror = (centre .- lower, upper .- centre), st = :scatter,
                 title = string("Posterior ", point_est, "s with credible intervals"),
@@ -154,7 +153,7 @@ function plot_posterior_intervals(model, point_est::String = "median", prob::Flo
                 ylabel = "Parameter",
                 legend = false,
                 markersize = 5,
-                color = centrecolour, markerstrokecolor = barcolour,
+                color = centrecolour, markerstrokecolor = centrecolour,
                 size = (600, 600))
 
     return myPlot
