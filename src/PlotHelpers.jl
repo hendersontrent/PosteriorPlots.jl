@@ -10,11 +10,15 @@
 
 #----------- Histogram ------------
 
-function histhelper(data::DataFrame, centrality::Symbol, p::Symbol, add_legend::Bool)
+function histhelper(data::DataFrame, centrality::String, p::Symbol, add_legend::Bool)
 
     # Compute median
 
-    m = centrality(data[!, p])
+    if centrality == "median"
+        m = median(data[!, p])
+    else
+        m = mean(data[!, p])
+    end
 
     # Set up graphics helpers
 
@@ -28,21 +32,27 @@ function histhelper(data::DataFrame, centrality::Symbol, p::Symbol, add_legend::
                   color = mycolor, title = string(p), size = (800, 800),
                   legend = add_legend)
 
-    plot!([m], seriestype = "vline", color = mycolor2, label = string(centrality), linewidth = 2.5)
+    plot!([m], seriestype = "vline", color = mycolor2, label = centrality, linewidth = 2.5)
 
     return myPlot
 end
 
 #----------- Density --------------
 
-function denshelper(data::DataFrame, centrality::Symbol, p::Symbol, lower::Float64, upper::Float64, add_legend::Bool)
+function denshelper(data::DataFrame, centrality::String, p::Symbol, lower::Float64, upper::Float64, add_legend::Bool)
 
     Random.seed!(123)
 
     # Compute median
 
     thevec = convert(Vector, data[!, p])
-    m = centrality(thevec)
+
+    if centrality == "median"
+        m = median(thevec)
+    else
+        m = mean(thevec)
+    end
+
     y = kde(thevec)
     lowerquantile = quantile(thevec, lower)
     upperquantile = quantile(thevec, upper)
@@ -60,7 +70,7 @@ function denshelper(data::DataFrame, centrality::Symbol, p::Symbol, lower::Float
     plot!(range(lowerquantile, stop = upperquantile, length = 100), thevec -> pdf(y,thevec), 
            color =  mycolor, fill = (0, 0.4, mycolor), label = "Credible Interval", legend = add_legend)
 
-    plot!([m], seriestype = "vline", color = mycolor, label = string(centrality), linewidth = 2.5)
+    plot!([m], seriestype = "vline", color = mycolor, label = centrality, linewidth = 2.5)
 
     return myPlot
 end

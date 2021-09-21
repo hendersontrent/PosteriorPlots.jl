@@ -16,7 +16,7 @@ Arguments:
 - `point_est` : The type of point estimate to use.
 - `prob` : The probability of the credible interval to calculate.
 """
-function plot_posterior_intervals(model, point_est::Symbol = median, prob::Float64 = 0.95, args...; kwargs...)
+function plot_posterior_intervals(model, point_est::String = "median", prob::Float64 = 0.95, args...; kwargs...)
 
     # Fix seed for reproducibility
 
@@ -24,7 +24,7 @@ function plot_posterior_intervals(model, point_est::Symbol = median, prob::Float
 
     # Check point estimate argument
 
-    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    (point_est == "mean" || point_est == "median") || error("`point_est` should be a String of either 'mean' or 'median'.")
 
     # Check prob argument
 
@@ -46,9 +46,13 @@ function plot_posterior_intervals(model, point_est::Symbol = median, prob::Float
         ncols = size(thefloats, 2)
         stackedfloats = stack(thefloats, 1:ncols)
 
-        # Median and credible intervals
+        # Point estimate and credible intervals
 
-        finalfloats = combine(groupby(stackedfloats, :variable), :value => point_est => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        if point_est == median
+            finalfloats = combine(groupby(stackedfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        else
+            finalfloats = combine(groupby(stackedfloats, :variable), :value => mean => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        end
 
         #-------- Wrangle arrays --------
 
@@ -72,9 +76,13 @@ function plot_posterior_intervals(model, point_est::Symbol = median, prob::Float
             ncols_res_arrays = size(parsedarraysCols, 2)
             stackedarraysfloats = stack(parsedarraysCols, 1:ncols_res_arrays)
 
-            # Median and credible intervals
+            # Point estimate and credible intervals
 
-            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => point_est => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+            if point_est == median
+                finalfloats = combine(groupby(stackedarraysfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+            else
+                finalfloats = combine(groupby(stackedarraysfloats, :variable), :value => mean => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+            end
         end
 
         #-------- Final outputs ---------
@@ -116,7 +124,11 @@ function plot_posterior_intervals(model, point_est::Symbol = median, prob::Float
         ncols = size(finalPost, 2)
         finalPost = stack(finalPost, 1:ncols)
 
-        finalPost = combine(groupby(finalPost, :variable), :value => point_est => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        if point_est == median
+            finalfloats = combine(groupby(finalPost, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        else
+            finalfloats = combine(groupby(finalPost, :variable), :value => mean => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        end
 
         # Standardise outputs
 
@@ -171,11 +183,11 @@ Arguments:
 - `point_est` : The type of point estimate to use.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_hist(model, point_est::Symbol = median, plot_legend::Bool = true, args...; kwargs...)
+function plot_posterior_hist(model, point_est::String = "median", plot_legend::Bool = true, args...; kwargs...)
 
     # Check point estimate argument
 
-    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    (point_est == "mean" || point_est == "median") || error("`point_est` should be a String of either 'mean' or 'median'.")
 
     if isa(model, Array)
 
@@ -258,11 +270,11 @@ Arguments:
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model, point_est::Symbol = median, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
+function plot_posterior_density(model, point_est::String = "median", prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
 
     # Check point estimate argument
 
-    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    (point_est == "mean" || point_est == "median") || error("`point_est` should be a String of either 'mean' or 'median'.")
     
     # Check prob argument
 

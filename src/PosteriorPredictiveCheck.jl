@@ -21,11 +21,11 @@ Arguments:
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_check(y::Array, yrep, point_est::Symbol = median, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
+function plot_posterior_check(y::Array, yrep, point_est::String = "median", prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
 
     # Check point estimate argument
 
-    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    (point_est == "mean" || point_est == "median") || error("`point_est` should be a String of either 'mean' or 'median'.")
     
     # Check prob argument
 
@@ -101,12 +101,16 @@ function plot_posterior_check(y::Array, yrep, point_est::Symbol = median, prob::
 
         tmp = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
 
-        tmp = combine(groupby(tmp, [:value]), :props => point_est => :med, :props => (x -> quantile(x, quantileRange[1])) => :lower, :props => (x -> quantile(x, quantileRange[2])) => :upper)
+        if point_est == "median"
+            tmp = combine(groupby(tmp, [:value]), :props => median => :centre, :props => (x -> quantile(x, quantileRange[1])) => :lower, :props => (x -> quantile(x, quantileRange[2])) => :upper)
+        else
+            tmp = combine(groupby(tmp, [:value]), :props => mean => :centre, :props => (x -> quantile(x, quantileRange[1])) => :lower, :props => (x -> quantile(x, quantileRange[2])) => :upper)
+        end
 
-        # Get margins to extend vertically from median for yerror bars on plot
+        # Get margins to extend vertically from point estimate for yerror bars on plot
 
-        tmp.lower_margin = tmp.med - tmp.lower
-        tmp.upper_margin = tmp.upper - tmp.med
+        tmp.lower_margin = tmp.centre - tmp.lower
+        tmp.upper_margin = tmp.upper - tmp.centre
 
         # Draw plot
 
@@ -125,6 +129,8 @@ function plot_posterior_check(y::Array, yrep, point_est::Symbol = median, prob::
 
     else 
         # Plot posterior draws
+
+        Random.seed!(123)
 
         for n in 1:nrows
 
@@ -172,11 +178,11 @@ Arguments:
 - `point_est` : The type of point estimate to use.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_hist_check(y::Array, yrep, point_est::Symbol = median, plot_legend::Bool = true, args...; kwargs...)
+function plot_hist_check(y::Array, yrep, point_est::String = "median", plot_legend::Bool = true, args...; kwargs...)
 
     # Check point estimate argument
 
-    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    (point_est == "mean" || point_est == "median") || error("`point_est` should be a String of either 'mean' or 'median'.")
     
     # Check object sizes
 
@@ -197,13 +203,22 @@ function plot_hist_check(y::Array, yrep, point_est::Symbol = median, plot_legend
 
     # Compute median for real data vector
 
-    m = median(y)
+    if point_est == "median"
+        m = median(y)
+    else
+        m = mean(y)
+    end
 
-    # Wrangle posterior draws from wide to long and compute median for each value
+    # Wrangle posterior draws from wide to long and compute point estimate for each value
 
     tmp = DataFrame(yrep)
     tmp = stack(tmp, 1:length2)
-    tmp = combine(groupby(tmp, :variable), :value => point_est)
+
+    if point_est == "median"
+        tmp = combine(groupby(tmp, :variable), :value => median)
+    else
+        tmp = combine(groupby(tmp, :variable), :value => mean)
+    end
 
     # Set up graphics helpers
 
@@ -246,8 +261,6 @@ Arguments:
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
 function plot_ecdf_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
-
-    Random.seed!(123)
     
     # Check object sizes
 
