@@ -1,12 +1,12 @@
 """
 
-    plot_posterior_check(y, yrep, prob, plot_legend, args...; kwargs...)
+    plot_posterior_check(y, yrep, point_est, prob, plot_legend, args...; kwargs...)
 
 Draw a density plot of a random sample of draws from the response variable posterior distribution against the density estimation of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_posterior_check(y, yrep, prob, plot_legend)
+plot_posterior_check(y, yrep, point_est, prob, plot_legend)
 ```
 
 Details:
@@ -17,11 +17,16 @@ Arguments:
 
 - `y` : The vector of response variable values.
 - `yrep` : The Draws x Values matrix of posterior predictions.
+- `point_est` : The type of point estimate to use.
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_check(y::Array, yrep, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
+function plot_posterior_check(y::Array, yrep, point_est::Symbol = median, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
 
+    # Check point estimate argument
+
+    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    
     # Check prob argument
 
     prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
@@ -96,7 +101,7 @@ function plot_posterior_check(y::Array, yrep, prob::Float64 = 0.95, plot_legend:
 
         tmp = combine(groupby(tmp, :iteration), :count => (x -> x ./ sum(x)) => :props, :value => :value)
 
-        tmp = combine(groupby(tmp, [:value]), :props => median => :med, :props => (x -> quantile(x, quantileRange[1])) => :lower, :props => (x -> quantile(x, quantileRange[2])) => :upper)
+        tmp = combine(groupby(tmp, [:value]), :props => point_est => :med, :props => (x -> quantile(x, quantileRange[1])) => :lower, :props => (x -> quantile(x, quantileRange[2])) => :upper)
 
         # Get margins to extend vertically from median for yerror bars on plot
 
@@ -151,23 +156,28 @@ end
 
 """
 
-    plot_hist_check(y, yrep, plot_legend, args...; kwargs...)
+    plot_hist_check(y, yrep, point_est, plot_legend, args...; kwargs...)
 
 Draw a plot with a binned histogram of posterior-predicted response variable values against a measure of centrality of the actual data to visualise model fit.
 
 Usage:
 ```julia-repl
-plot_hist_check(y, yrep, plot_legend)
+plot_hist_check(y, yrep, point_est, plot_legend)
 ```
 
 Arguments:
 
 - `y` : The vector of response variable values.
 - `yrep` : The Draws x Values matrix of posterior predictions.
+- `point_est` : The type of point estimate to use.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_hist_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
+function plot_hist_check(y::Array, yrep, point_est::Symbol = median, plot_legend::Bool = true, args...; kwargs...)
 
+    # Check point estimate argument
+
+    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    
     # Check object sizes
 
     size(y, 2) == 1 || error("`y` should have a dimension of N x 1.")
@@ -193,7 +203,7 @@ function plot_hist_check(y::Array, yrep, plot_legend::Bool = true, args...; kwar
 
     tmp = DataFrame(yrep)
     tmp = stack(tmp, 1:length2)
-    tmp = combine(groupby(tmp, :variable), :value => median)
+    tmp = combine(groupby(tmp, :variable), :value => point_est)
 
     # Set up graphics helpers
 
@@ -237,6 +247,8 @@ Arguments:
 """
 function plot_ecdf_check(y::Array, yrep, plot_legend::Bool = true, args...; kwargs...)
 
+    Random.seed!(123)
+    
     # Check object sizes
 
     size(y, 2) == 1 || error("`y` should have a dimension of N x 1.")

@@ -1,25 +1,30 @@
 using Base: Symbol
 """
 
-    plot_posterior_intervals(model, prob, args...; kwargs...)
+    plot_posterior_intervals(model, point_est, prob, args...; kwargs...)
 
 Draw a plot with a point estimate measure of centrality and quantiled credible intervals for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_intervals(model, prob)
+plot_posterior_intervals(model, point_est, prob)
 ```
 
 Arguments:
 
 - `model` : The model to draw inferences from.
+- `point_est` : The type of point estimate to use.
 - `prob` : The probability of the credible interval to calculate.
 """
-function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs...)
+function plot_posterior_intervals(model, point_est::Symbol = median, prob::Float64 = 0.95, args...; kwargs...)
 
     # Fix seed for reproducibility
 
     Random.seed!(123)
+
+    # Check point estimate argument
+
+    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
 
     # Check prob argument
 
@@ -43,7 +48,7 @@ function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs..
 
         # Median and credible intervals
 
-        finalfloats = combine(groupby(stackedfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        finalfloats = combine(groupby(stackedfloats, :variable), :value => point_est => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
 
         #-------- Wrangle arrays --------
 
@@ -69,7 +74,7 @@ function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs..
 
             # Median and credible intervals
 
-            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+            finalfloatsarrays = combine(groupby(stackedarraysfloats, :variable), :value => point_est => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
         end
 
         #-------- Final outputs ---------
@@ -111,7 +116,7 @@ function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs..
         ncols = size(finalPost, 2)
         finalPost = stack(finalPost, 1:ncols)
 
-        finalPost = combine(groupby(finalPost, :variable), :value => median => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
+        finalPost = combine(groupby(finalPost, :variable), :value => point_est => :centre, :value => (t -> quantile(t, quantileRange[1])) => :lower, :value => (t -> quantile(t, quantileRange[2])) => :upper)
 
         # Standardise outputs
 
@@ -130,7 +135,7 @@ function plot_posterior_intervals(model, prob::Float64 = 0.95, args...; kwargs..
     gr() # gr backend for graphics
 
     myPlot = plot(centre, variable, xerror = (centre .- lower, upper .- centre), st = :scatter,
-                title = "Posterior medians with credible intervals",
+                title = string("Posterior", point_est, "s with credible intervals"),
                 xlabel = "Value",
                 ylabel = "Parameter",
                 legend = false,
@@ -144,13 +149,13 @@ end
 
 """
 
-    plot_posterior_hist(model, plot_legend, args...; kwargs...)
+    plot_posterior_hist(model, point_est, plot_legend, args...; kwargs...)
 
 Draw a plot with a binned histogram of sampled parameters for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_hist(model, plot_legend)
+plot_posterior_hist(model, point_est, plot_legend)
 ```
 
 Details:
@@ -160,9 +165,14 @@ Note that to get the function to work, you may need to call it using a splat, su
 Arguments:
 
 - `model` : The model to draw inferences from.
+- `point_est` : The type of point estimate to use.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_hist(model, plot_legend::Bool = true, args...; kwargs...)
+function plot_posterior_hist(model, point_est::Symbol = median, plot_legend::Bool = true, args...; kwargs...)
+
+    # Check point estimate argument
+
+    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
 
     if isa(model, Array)
 
@@ -216,7 +226,7 @@ function plot_posterior_hist(model, plot_legend::Bool = true, args...; kwargs...
 
     # Draw plot for each parameter
 
-    myPlotArray = [histhelper(posteriorDF, p, plot_legend) for p in params]
+    myPlotArray = [histhelper(posteriorDF, point_est, p, plot_legend) for p in params]
 
     return myPlotArray
 end
@@ -225,27 +235,32 @@ end
 
 """
 
-    plot_posterior_density(model, prob, plot_legend, args...; kwargs...)
+    plot_posterior_density(model, point_est, prob, plot_legend, args...; kwargs...)
 
 Draw a density plot of sampled parameters for easy interpretation of models fit in PPLs such as `Turing.jl` or `Soss.jl`.
 
 Usage:
 ```julia-repl
-plot_posterior_density(model, prob, plot_legend)
+plot_posterior_density(model, point_est, prob, plot_legend)
 ```
 
 Details:
 
-Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_density(model, plot_legend)...)`.
+Note that to get the function to work, you may need to call it using a splat, such as `plot(plot_posterior_density(model, point_est, plot_legend)...)`.
 
 Arguments:
 
 - `model` : The model to draw inferences from.
+- `point_est` : The type of point estimate to use.
 - `prob` : The probability of the credible interval to calculate.
 - `plot_legend` : Boolean of whether to add a legend to the plot or not.
 """
-function plot_posterior_density(model, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
+function plot_posterior_density(model, point_est::Symbol = median, prob::Float64 = 0.95, plot_legend::Bool = true, args...; kwargs...)
 
+    # Check point estimate argument
+
+    (point_est == mean || point_est == median) || error("`point_est` should be a Symbol of either `mean` or `median`.")
+    
     # Check prob argument
 
     prob > 0 || error("`prob` should be a single Float64 value of 0 < prob < 1.")
@@ -304,7 +319,7 @@ function plot_posterior_density(model, prob::Float64 = 0.95, plot_legend::Bool =
 
     # Draw plot for each parameter
 
-    myPlotArray = [denshelper(posteriorDF, p, quantileRange[1], quantileRange[2], plot_legend) for p in params]
+    myPlotArray = [denshelper(posteriorDF, point_est, p, quantileRange[1], quantileRange[2], plot_legend) for p in params]
 
     return myPlotArray
 end

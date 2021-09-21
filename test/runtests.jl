@@ -50,7 +50,7 @@ Turing.setprogress!(false)
     end
 
     model = linear_regression(train, train_target)
-    chain = sample(model, NUTS(0.65), 3_000);
+    chain = sample(model, NUTS(0.65), 3_000)
 
     #------------------------------
     # Run core PosteriorPlots tests
@@ -58,13 +58,13 @@ Turing.setprogress!(false)
 
     # Inference
     
-    p =  plot_posterior_intervals(chain, 0.95)
+    p =  plot_posterior_intervals(chain, median, 0.95)
     @test p isa Plots.Plot
 
-    p1 = plot(plot_posterior_hist(chain, true)...)
+    p1 = plot(plot_posterior_hist(chain, median, true)...)
     @test p1 isa Plots.Plot
 
-    p2 = plot(plot_posterior_density(chain, 0.95, true)...)
+    p2 = plot(plot_posterior_density(chain, median, 0.95, true)...)
     @test p2 isa Plots.Plot
 
     # PPC
