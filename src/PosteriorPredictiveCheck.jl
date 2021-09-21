@@ -211,7 +211,12 @@ function plot_hist_check(y::Array, yrep, point_est::String = "median", plot_lege
 
     # Wrangle posterior draws from wide to long and compute point estimate for each value
 
-    tmp = DataFrame(yrep)
+    if isa(yrep, Array)
+        tmp = DataFrame(yrep)
+    else
+        tmp = yrep
+    end
+
     tmp = stack(tmp, 1:length2)
 
     if point_est == "median"
@@ -291,7 +296,7 @@ function plot_ecdf_check(y::Array, yrep, plot_legend::Bool = true, args...; kwar
 
     if isa(yrep, Array)
         tmp = DataFrame(yrep)
-    else
+    else 
         tmp = yrep
     end
 

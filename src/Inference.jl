@@ -149,7 +149,7 @@ function plot_posterior_intervals(model, point_est::String = "median", prob::Flo
     barcolour = cgrad(:blues)[1]
 
     myPlot = plot(centre, variable, xerror = (centre .- lower, upper .- centre), st = :scatter,
-                title = string("Posterior", point_est, "s with credible intervals"),
+                title = string("Posterior ", point_est, "s with credible intervals"),
                 xlabel = "Value",
                 ylabel = "Parameter",
                 legend = false,
