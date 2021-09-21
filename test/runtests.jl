@@ -56,16 +56,33 @@ Turing.setprogress!(false)
     # Run core PosteriorPlots tests
     #------------------------------
 
-    # Inference
+    # Inference with median
     
     p =  plot_posterior_intervals(chain, median, 0.95)
+    display(p)
     @test p isa Plots.Plot
 
     p1 = plot(plot_posterior_hist(chain, median, true)...)
+    display(p1)
     @test p1 isa Plots.Plot
 
     p2 = plot(plot_posterior_density(chain, median, 0.95, true)...)
+    display(p2)
     @test p2 isa Plots.Plot
+
+    # Inference with mean
+
+    pₐ =  plot_posterior_intervals(chain, mean, 0.95)
+    display(pₐ)
+    @test pₐ isa Plots.Plot
+
+    p1ₐ = plot(plot_posterior_hist(chain, mean, true)...)
+    display(p1ₐ)
+    @test p1ₐ isa Plots.Plot
+
+    p2ₐ = plot(plot_posterior_density(chain, mean, 0.95, true)...)
+    display(p2ₐ)
+    @test p2ₐ isa Plots.Plot
 
     # PPC
 
@@ -73,8 +90,13 @@ Turing.setprogress!(false)
     
     yrep = [[1,0,0,0,0] [1,1,1,1,0] [1,1,0,1,0] [0,0,0,1,0] [1,1,1,1,1] [1,1,1,1,1] [1,1,1,1,1] [0,0,0,0,0] [1,1,0,1,1] [0,0,0,0,0]]
 
-    p3 =  plot_posterior_check(y, yrep)
+    p3 =  plot_posterior_check(y, yrep, median)
+    display(p3)
     @test p3 isa Plots.Plot
+
+    p3ₐ =  plot_posterior_check(y, yrep, mean)
+    display(p3ₐ)
+    @test p3ₐ isa Plots.Plot
 
     #p4 =  plot_hist_check(y, yrep)
     #@test p4 isa Plots.Plot
